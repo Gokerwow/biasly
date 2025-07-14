@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Tangan kiri -->
+  <path d="M50,150 C60,120 40,100 70,80 C85,65 95,70 100,80 L100,150 Z" 
+        fill="#F9C9B6" stroke="#000" stroke-width="2"/>
+  
+  <!-- Tangan kanan -->
+  <path d="M150,150 C140,120 160,100 130,80 C115,65 105,70 100,80 L100,150 Z" 
+        fill="#F9C9B6" stroke="#000" stroke-width="2"/>
+</svg>

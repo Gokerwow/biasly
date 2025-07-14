@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+    <!-- Bentuk hati dengan gaya finger heart -->
+    <path d="M100,50 
+            C80,20 30,30 50,80 
+            C60,100 100,130 100,130 
+            C100,130 140,100 150,80 
+            C170,30 120,20 100,50 Z" 
+            fill="#FF6B6B" stroke="#9900FF" stroke-width="3"/>
+    
+    <!-- Garis-garis jari untuk efek tangan -->
+    <path d="M80,60 C85,55 90,57 95,60" stroke="#9900FF" stroke-width="2" fill="none"/>
+  <path d="M120,60 C125,55 130,57 135,60" stroke="#9900FF" stroke-width="2" fill="none"/>
+</svg>

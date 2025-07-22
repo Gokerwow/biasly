@@ -1,0 +1,17 @@
+import Navbar from '@/components/navbar'; // Contoh path ke navbar Anda
+
+export default function MainLayout({
+    children,
+}: {
+    children: React.ReactNode
+}) {
+    return (
+        // Anda tidak perlu <html> dan <body> di sini lagi
+        <main>
+            <Navbar /> {/* Navbar ditampilkan di sini */}
+            <div className="pt-20 px-40">
+                {children}
+            </div>
+        </main>
+    )
+}

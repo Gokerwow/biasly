@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-item::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #9900ff;
+  transform: scaleX(0);
+  transform-origin: right;
+
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.nav-item:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.containerPad {
+  @apply pt-20 px-40;
+}
+
+.mainButton {
+  position: relative;
+  background: rgb(249, 1, 167);
+  overflow: hidden;
+}
+
+.mainButton::before {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 120%;
+  background-color: white;
+  top: 50%;
+  transform: skewX(30deg) translate(-250%, -50%);
+  transition: all 0.5s;
+}
+
+.mainButton:hover {
+  background-color: #9900ff;
+  color: #fff;
+  box-shadow: 0 2px 0 2px #2a0145;
+}
+
+.mainButton:hover::before {
+  transform: skewX(30deg) translate(250%, -50%);
+  transition-delay: 0.1s;
+}
+
+.mainButton:active {
+  transform: scale(0.9);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #ff2d78 0%, #8a2be2 50%, #00a2ff 100%);
+}
+
+.glass-effect {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.member-card {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.member-card:hover {
+  transform: translateY(-15px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.tab-content {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.active-tab {
+  position: relative;
+  background: linear-gradient(135deg, #ff2d78, #8a2be2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.active-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(135deg, #ff2d78, #8a2be2);
+  border-radius: 2px;
+}
+
+.stats-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 45, 120, 0.1),
+    rgba(138, 43, 226, 0.1)
+  );
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 45, 120, 0.2),
+    rgba(138, 43, 226, 0.2)
+  );
+}

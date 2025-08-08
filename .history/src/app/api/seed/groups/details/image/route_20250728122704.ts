@@ -1,0 +1,26 @@
+import { createClient } from "@/utils/supabase/server";
+
+export async function GET() {
+    try {
+        const supabase = await createClient()
+
+        // 1. Dapatkan waktu saat ini
+        const sixHoursAgo = new Date();
+        // 2. Kurangi 6 jam dari waktu saat ini
+        sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
+        // 3. Ubah ke format ISO
+        const isoDate = sixHoursAgo.toISOString();
+
+        const { data: GroupsData, error: SelectError } = await supabase
+            .from('groups')
+            .select('name')
+            .or(`details_fetched_at.is.null,details_fetched_at.lt.${isoDate}`)
+            .limit(50);
+
+                        const ImageElement = $('figure.pi-image a')
+                const ImageUrl = ImageElement.attr('href')
+                details.imageUrl = ImageUrl || null
+    } catch {
+
+    }
+}

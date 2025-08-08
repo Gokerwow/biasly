@@ -1,0 +1,12 @@
+export async function GET() {
+    const url = `https://kpop.fandom.com/api.php?action=query&list=categorymembers&cmtitle=Category:Record%20labels&cmlimit=500&format=json&origin=*`
+
+    const response = await fetch(url)
+
+    if(!response.ok) {
+        console.error(`Fandom API Error for Labels page: Status ${response.status}`);
+    }
+
+    const result = await response.json()
+    const data = result.query.categorymembers
+}

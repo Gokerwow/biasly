@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json", // Mewarisi dari config utama di root
+  "compilerOptions": {
+    // Override opsi yang bermasalah
+    "module": "CommonJS",         // <-- Paling stabil untuk skrip Node.js
+    "moduleResolution": "node",     // <-- Resolusi modul standar untuk Node.js
+    "noEmit": false,                // <-- Izinkan 'emit', menghapus konflik
+    "lib": ["esnext"]               // <-- Gunakan library ESNext saja, tanpa DOM
+  },
+  "include": [
+    "./**/*.ts" // Hanya mencakup file di dalam folder 'scripts' ini
+  ]
+}

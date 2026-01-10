@@ -11,7 +11,7 @@ interface GroupsProps {
 
 interface IdolsCardProps {
     name: string;
-    // groups:GroupsProps[],
+    // groups:GroupsProps[],>
     groups: GroupsProps
 }
 

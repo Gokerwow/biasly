@@ -128,38 +128,17 @@ body {
   border-radius: 2px;
 }
 
-.stats-card {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 45, 120, 0.1),
-    rgba(138, 43, 226, 0.1)
-  );
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.stats-card:hover {
-  transform: translateY(-5px);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 45, 120, 0.2),
-    rgba(138, 43, 226, 0.2)
-  );
-}
-
-@import "tailwindcss";
-
 @theme {
   --color-kpop-pink: #EB4899;
+  --color-kpop-pink-hover: #DB2777;
   --color-kpop-blue: #00A2FF;
   --color-kpop-purple: #9900FF;
   --color-kpop-black: #181818;
   --color-kpop-gray: #F5F5F5;
-  
+
   --font-family-sans: "Inter", sans-serif;
   --font-family-display: "Poppins", sans-serif;
-  
+
   --animate-fade-in: fadeIn 0.8s ease-in-out;
   --animate-slide-up: slideUp 0.6s ease-out;
   --animate-float: float 3s ease-in-out infinite;
@@ -167,21 +146,43 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%, 100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes glow {
-  from { box-shadow: 0 0 20px rgba(235, 72, 153, 0.5); }
-  to { box-shadow: 0 0 30px rgba(235, 72, 153, 0.8); }
+  from {
+    box-shadow: 0 0 20px rgba(235, 72, 153, 0.5);
+  }
+
+  to {
+    box-shadow: 0 0 30px rgba(235, 72, 153, 0.8);
+  }
 }

@@ -1,5 +1,5 @@
-import Image from "next/image";
 import NewsCard from "@/components/newsCard";
+import BoltIcon from "@/assets/svgs/bolt-solid.svg";
 
 export default function Home() {
   return (
@@ -9,20 +9,16 @@ export default function Home() {
         <h3>Your ultimate hub for K-pop rankings, news, and fandom</h3>
       </div>
       <div className="flex items-center border-b-2 border-gray-400 py-2 gap-2">
-        <Image
-          src="/bolt-solid.svg"
-          alt="News Icon"
-          width={30}
-          height={30}
-          className="bg-gradient-to-r from-[#9900FF] to-[#EB4899] bg-clip-text transparent"
+        <BoltIcon
+        className="bg-gradient-to-r from-[#9900FF] to-[#EB4899] bg-clip-text transparent"
         />
         <h1 className="text-xl font-bold">K-POP Breaking News</h1>
       </div>
       <div className="flex justify-between items-center pt-5">
         <NewsCard 
         imageUrl={"/assets/images/1080full-yuna-(itzy).jpg"}
-        alt={"picture"}
-        date={"22 June 2025"}
+        alt="picture"
+        date="22 June 2025"
         title="Yuna has a relationship with Brillian?!?!"
         subTitle="The popular Yuna from ITZY Kpop Group spotted in Seoul."
         />

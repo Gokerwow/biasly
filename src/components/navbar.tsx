@@ -6,6 +6,11 @@ import Link from "next/link"
 import { Bookmark, Heart, LogOut, Settings } from "lucide-react"
 import { CgProfile } from "react-icons/cg"
 import { useUser } from "@/app/context/userContext"
+import HomeIcon from "@/assets/svgs/home.svg"
+import GroupsIcon from "@/assets/svgs/groups.svg"
+import IdolsIcon from "@/assets/svgs/idols.svg"
+import DiscoveryIcon from "@/assets/svgs/discovery.svg"
+import CommunityIcon from "@/assets/svgs/community.svg"
 
 const supabase = createClient()
 
@@ -31,56 +36,31 @@ export default function Navbar() {
             <ul className="text-black bg-[#F9F9F9] flex justify-center justify-self-center items-center h-fit px-5 py-2 rounded-2xl border-1 border-gray-400">
                 <li className="p-2 flex justify-center items-center nav-item">
                     <Link href="/" className="flex justify-center items-end gap-1">
-                        <Image
-                            src="/home.svg"
-                            alt="Home Icon"
-                            width={25}
-                            height={25}
-                        />
+                        <HomeIcon />
                         <span>Home</span>
                     </Link>
                 </li>
                 <li className="p-2 flex justify-center items-center nav-item">
                     <Link href="/groups" className="flex justify-center items-end gap-1">
-                        <Image
-                            src="/groups.svg"
-                            alt="Home Icon"
-                            width={25}
-                            height={25}
-                        />
+                        <GroupsIcon />
                         <span>Groups</span>
                     </Link>
                 </li>
                 <li className="p-2 flex justify-center items-center nav-item">
                     <Link href="/idols" className="flex justify-center items-end gap-1">
-                        <Image
-                            src="/idols.svg"
-                            alt="Home Icon"
-                            width={25}
-                            height={25}
-                        />
+                        <IdolsIcon />
                         <span>Idols</span>
                     </Link>
                 </li>
                 <li className="p-2 flex justify-center items-center nav-item">
                     <Link href="#" className="flex justify-center items-end gap-1">
-                        <Image
-                            src="/discovery.svg"
-                            alt="Home Icon"
-                            width={25}
-                            height={25}
-                        />
+                        <DiscoveryIcon />
                         <span>Discovery</span>
                     </Link>
                 </li>
                 <li className="p-2 flex justify-center items-center nav-item">
                     <Link href="#" className="flex justify-center items-end gap-1">
-                        <Image
-                            src="/community.svg"
-                            alt="Home Icon"
-                            width={25}
-                            height={25}
-                        />
+                        <CommunityIcon />
                         <span>Community</span>
                     </Link>
                 </li>

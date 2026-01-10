@@ -5,15 +5,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'kzcucrksqzdypkmlviex.supabase.co', // <-- Salin dari pesan error Anda
+        hostname: 'kzcucrksqzdypkmlviex.supabase.co',
         port: '',
-        pathname: '/storage/v1/object/public/**', // <-- Izinkan semua path di public storage
+        pathname: '/storage/v1/object/public/**',
       },
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
         port: '',
-        pathname: '/**', // Izinkan semua path dari host ini
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -22,6 +22,29 @@ const nextConfig: NextConfig = {
         pathname: '/kpop/images/**',
       },
     ],
+  },
+  webpack(config) {
+    const fileLoaderRule = config.module.rules.find((rule) =>
+      rule.test?.test?.('.svg'),
+    )
+
+    config.module.rules.push(
+      {
+        ...fileLoaderRule,
+        test: /\.svg$/i,
+        resourceQuery: /url/, // *.svg?url
+      },
+      {
+        test: /\.svg$/i,
+        issuer: fileLoaderRule.issuer,
+        resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] },
+        use: ['@svgr/webpack'],
+      },
+    )
+
+    fileLoaderRule.exclude = /\.svg$/i
+
+    return config
   },
 };
 

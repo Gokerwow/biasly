@@ -30,6 +30,8 @@ export default async function GroupsPage({ searchParams }: {
 
     const totalPages = Math.ceil((count ?? 0) / itemsPerPage);
 
+    // console.log(GroupsData);
+
     return (
         <div className="py-18">
             <header className="w-full bg-gradient-to-r from-[#9900FF] to-[#EB4899]">

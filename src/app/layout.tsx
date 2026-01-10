@@ -27,6 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <meta name="apple-mobile-web-app-title" content="Biasly" />
       <body
+        suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>

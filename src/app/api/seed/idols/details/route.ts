@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { seedIdolDetails } from "@/lib/seed/idols/details";
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
     // const authHeader = request.headers.get('authorization');
     // if (authHeader !== `Bearer ${process.env.SEEDING_SECRET_KEY}`) {
     //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

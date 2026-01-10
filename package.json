@@ -3,27 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "scrape:main": "tsx scripts/main/main.ts"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.51.0",
+    "axios": "^1.12.1",
     "cheerio": "^1.1.2",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.525.0",
     "next": "15.3.5",
     "p-limit": "^6.2.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "puppeteer": "^24.34.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
+    "yet-another-react-lightbox": "^3.25.0",
     "zod": "^4.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/cheerio": "^0.22.35",
     "@types/node": "^20",
@@ -35,6 +40,7 @@
     "eslint-config-next": "15.3.5",
     "postcss": "^8.5.6",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

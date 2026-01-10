@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import axios from "axios";
 import * as cheerio from 'cheerio';
 import { parse } from 'date-fns';
 import pLimit from "p-limit";
@@ -35,25 +36,21 @@ export async function seedIdolDetails() {
                         console.log(`fetching detail dari idol ${idol.name}`)
                         const url = `https://kpop.fandom.com/api.php?action=parse&page=${encodeURIComponent(idol.name)}&prop=text&format=json&origin=*`
 
-                        const response = await fetch(url)
+                        const response = await axios.get(url);
 
-                        if (!response.ok) {
-                            throw new Error(`HTTP Error ${response.status}`)
-                        }
-
-                        const result = await response.json()
+                        const result = response.data; // axios otomatis parse JSON
 
                         if (result.error) {
                             // Handle specific API errors
-                            if (result.error.code === 'missingtitle') {
+                            if (result.error.code === "missingtitle") {
                                 console.log(`Halaman tidak ditemukan untuk idol: ${idol.name}`);
-                                return null; // Return null instead of throwing error
+                                return null;
                             }
                             throw new Error(`API Error: ${result.error.info}`);
                         }
 
                         // Check if parse result exists
-                        if (!result.parse || !result.parse.text || !result.parse.text['*']) {
+                        if (!result.parse || !result.parse.text || !result.parse.text["*"]) {
                             console.log(`Data parsing tidak tersedia untuk idol: ${idol.name}`);
                             return null;
                         }
@@ -125,6 +122,9 @@ export async function seedIdolDetails() {
 
                         const htmlString = result.parse.text['*']
                         const $ = cheerio.load(htmlString)
+
+
+                        const data = $('.portable-infobox')
 
                         // Name
                         detail.name = idol.name
@@ -239,7 +239,14 @@ export async function seedIdolDetails() {
                         if (agencyHtml && agencyHtml.length > 0) {
                             const Agency = agencyHtml.map((item) => {
                                 const $item = $(item)
-                                const name = $item.find('a').text() || $item.text().split('(')[0].trim()
+                                const plainText = $item.contents()
+                                    .filter(function () {
+                                        return this.type === 'text'
+                                    })
+                                    .text()
+                                    .trim()
+
+                                const name = $item.find('a').text() || $item.text().split('(')[0].trim() || plainText
                                 const periode = $item.find('span').text() ||
                                     (item.includes('(') ? item.match(/\(([^)]+)\)/)?.[1] : null)
                                 return {
@@ -426,7 +433,7 @@ export async function seedIdolDetails() {
                                     console.error(`Error processing group ${name}:`, error);
                                     return null;
                                 }
-                            }).filter(Boolean) // Filter out null promises
+                            })
 
                             const groupIds = await Promise.all(groupNamePromises);
                             detail.group_id = groupIds.filter(id => id !== null); // Filter out null results

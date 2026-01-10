@@ -1,6 +1,3 @@
-
-
-import { redirect } from 'next/navigation';
 import { login } from '../actions'
 import GoogleButton from '@/components/googleButton';
 import Link from 'next/link';

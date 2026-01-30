@@ -1,17 +1,18 @@
-import Navbar from '@/components/navbar'; // Contoh path ke navbar Anda
+import DashboardLayoutClient from "./layoutClient";
+import { TopBarServer } from "@/components/topBar/topBarServer";
+import { redirect } from "next/navigation";
+import { getProfile } from "../lib/userServer";
 
-export default function MainLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+    const session = await getProfile()
+
+    if (!session) {
+        redirect('/login')
+    }
+
     return (
-        // Anda tidak perlu <html> dan <body> di sini lagi
-        <main>
-            <Navbar /> {/* Navbar ditampilkan di sini */}
-            <div>
-                {children}
-            </div>
-        </main>
-    )
+        <DashboardLayoutClient topBar={<TopBarServer />}>
+            {children}
+        </DashboardLayoutClient>
+    );
 }

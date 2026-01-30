@@ -2,13 +2,14 @@
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { Database } from '../../types/supabase'
 
 export const createClient = async () => {
     // 1. Ambil cookieStore di dalam fungsi, bukan di luar
     const cookieStore = await cookies()
 
     // 2. Buat Supabase client dengan menyediakan implementasi cookie
-    return createServerClient(
+    return createServerClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {

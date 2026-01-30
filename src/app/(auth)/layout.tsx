@@ -1,8 +1,21 @@
-export default function AuthLayout({
+'use server'
+
+import { createClient } from "@/utils/supabase/server"
+import { redirect } from "next/navigation"
+
+export default async function AuthLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    // Layout ini hanya merender children tanpa elemen tambahan seperti navbar
+
+    const supabase = await createClient()
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (user) {
+        redirect('/dashboard')
+    }
+
     return <>{children}</>
 }

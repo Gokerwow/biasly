@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/kpop/images/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
     ],
   },
   webpack(config) {

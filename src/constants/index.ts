@@ -1,16 +1,50 @@
 export const BaseFandomURL = 'https://kpop.fandom.com/api.php';
 
+const withDashboard = (path = '') => `/dashboard${path}`
+
+export const ROUTES = {
+    DASHBOARD: {
+        INDEX: withDashboard(),
+        CARDS: {
+            INDEX: withDashboard('/cards'),
+            CREATE: withDashboard('/cards/add'),
+            UPDATE: withDashboard('/cards/update/:id'),
+            APPROVE: withDashboard('/cards/approve')
+        },
+        USERMGMT: withDashboard('/manage-user'),
+        REPORTS: withDashboard('/reports'),
+        ANALYTICS: withDashboard('/system-analytics')
+    },
+    COLLECTION: {
+        INDEX: '/collection',
+        DETAIL: '/collection/detail/:id'
+    },
+    BROWSE: {
+        INDEX: '/browse',
+        DETAIL: '/browse/detail/:id'
+    },
+    WISHLIST: {
+        INDEX: '/wishlist',
+        DETAIL: '/wishlist/detail/:id'
+    },
+    BINDER: {
+        INDEX: '/binder',
+        DETAIL: '/binder/detail/:id',
+        CREATE: '/binder/create'
+    }
+}
+
 export const GroupsCategories = {
     // GROUPS
     CO_ED: 'Co-ed_groups',
-    CREWS: 'Crews',
+    // CREWS: 'Crews',
     FEMALE_GROUPS: 'Female_groups',
     MALE_GROUPS: 'Male_groups',
     FICTIONAL: 'Fictional_groups',
-    PRE_DEBUT: 'Pre-debut_groups',
+    // PRE_DEBUT: 'Pre-debut_groups',
     PROJECT_GROUPS: 'Project_groups',
     SUPER_GROUPS: 'Supergroups',
-    TRAINEE_GROUPS: 'Trainee_groups',
+    // TRAINEE_GROUPS: 'Trainee_groups',
 
     // BANDS
     CO_ED_BANDS: 'Co-ed_bands',

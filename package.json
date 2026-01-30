@@ -7,9 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape:main": "tsx scripts/main/main.ts"
+    "scrape:main": "tsx scripts/main/main.ts",
+    "update-types": "npx supabase gen types typescript --project-id kzcucrksqzdypkmlviex --schema public",
+    "seed": "npx tsx --env-file=.env.local scripts/seed/seed.ts"
   },
   "dependencies": {
+    "@next/env": "^16.1.4",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.51.0",
@@ -17,12 +20,18 @@
     "cheerio": "^1.1.2",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.525.0",
+    "motion": "^12.26.2",
+    "mwn": "^3.0.1",
     "next": "15.3.5",
+    "nextjs-toploader": "^3.9.17",
     "p-limit": "^6.2.0",
     "puppeteer": "^24.34.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
+    "sharp": "^0.34.5",
+    "wtf_wikipedia": "^10.4.1",
     "yet-another-react-lightbox": "^3.25.0",
     "zod": "^4.0.5"
   },

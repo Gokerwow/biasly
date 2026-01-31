@@ -1,6 +1,6 @@
 'use client'
 
-import CustomToaster from "@/components/cards/UI/toaster";
+import CustomToaster from "@/components/UI/toaster";
 import { createContext, useContext } from "react"
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';

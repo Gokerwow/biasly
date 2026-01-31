@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { Plus, MoreVertical, Share2, Edit3, Filter } from 'lucide-react'
 import { useModal } from '@/app/providers/modalProvider' // Your custom hook
-import { Button } from '@/components/cards/UI/button' // Your custom button
+import { Button } from '@/components/UI/button' // Your custom button
 import Image from 'next/image'
 
 // --- MOCK DATA (Ideally this comes from Supabase) ---

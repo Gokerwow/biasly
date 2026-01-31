@@ -32,7 +32,6 @@ export default function SearchableSelect({
     icon: Icon,
     onSelect,
     onQueryChange,
-    // onChange,
     isLoading = false,
     disabled = false,
     name,
@@ -66,9 +65,12 @@ export default function SearchableSelect({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [query, selectedName]);
 
+    // ✅ FIXED: Only call onSelect in tag mode, and skip initial empty render
     useEffect(() => {
+        if (mode === 'tag' && chipItems.length > 0) {
             onSelect(chipItems);
-    }, [chipItems])
+        }
+    }, [chipItems, mode])
 
     const handleSelect = (item: Item) => {
         if (mode === 'tag') {
@@ -82,18 +84,16 @@ export default function SearchableSelect({
             if (selectedName === item.name) {
                 setSelectedName('');
                 setQuery('');
+                // ✅ Pass the item even when deselecting (parent can handle it)
+                onSelect(item);
             } else {
                 setSelectedName(item.name);
                 setQuery(item.name);
+                onSelect(item);
             }
-            onSelect(item);
+            setIsOpen(false);
         }
-        setIsOpen(false);
     };
-
-    // if (chipItems.length === filteredItems.length) {
-    //     alert('ITS THE WHOLE GROUP MATE...')
-    // }
 
     return (
         <div
@@ -114,7 +114,7 @@ export default function SearchableSelect({
                     <div className={`flex flex-1 items-center ${chipItems.length > 0 ? 'gap-2' : ''} overflow-x-auto no-scrollbar h-full`}>
 
                         {/* Tags */}
-                        {mode === 'tag' && (
+                        {mode === 'tag' && chipItems.length > 0 && (
                             <div className="flex gap-2 shrink-0 items-center">
                                 {chipItems.map((chip, index) => (
                                     <div key={index} className="
@@ -124,7 +124,14 @@ export default function SearchableSelect({
                                         transition-all hover:border-purple-500/50 hover:bg-purple-500/20
                                     ">
                                         <span className="leading-none">{chip.name}</span>
-                                        <button type="button" className="text-purple-400 hover:text-white flex items-center">
+                                        <button 
+                                            type="button" 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setChipItems(prev => prev.filter(c => c.id !== chip.id));
+                                            }}
+                                            className="text-purple-400 hover:text-white flex items-center"
+                                        >
                                             <X className="w-3 h-3" />
                                         </button>
                                     </div>

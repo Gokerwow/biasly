@@ -1,8 +1,8 @@
 'use client'
 
 import { login } from './action'
-import GoogleButton from '@/components/cards/UI/googleButton';
-import { Input } from '@/components/cards/UI/input';
+import GoogleButton from '@/components/UI/googleButton';
+import { Input } from '@/components/UI/input';
 import { RectangleEllipsis, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';

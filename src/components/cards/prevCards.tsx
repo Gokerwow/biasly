@@ -1,19 +1,20 @@
 import { Upload, Check, User, Eye } from "lucide-react";
-import RarityBadge from "./UI/rarityBadge";
+import RarityBadge from "../UI/rarityBadge";
 import Image from "next/image";
 import { getRarityBorder, getRarityGlow, getRarityText } from "@/helper";
 import { CardWithDetail } from "@/app/(main)/dashboard/cards/approve/page";
 import { useState } from "react";
+import { CardWithIdol } from "@/app/(main)/dashboard/cards/page";
 
 interface PrevCardProps {
     // Standard Props
-    card: CardWithDetail
+    card: CardWithDetail | CardWithIdol
 
-    // 🛡️ ADMIN / SELECTION PROPS
+    // ADMIN / SELECTION PROPS
     isSelected?: boolean
     onClick?: () => void
     submitted_by?: string | null
-    onInspect?: (item: CardWithDetail) => void // 👈 New Prop
+    onInspect?: (item: CardWithDetail | CardWithIdol) => void
 }
 
 export default function PrevCard({
@@ -28,6 +29,11 @@ export default function PrevCard({
     const borderClass = isSelected
         ? 'border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-[0.98]'
         : `${getRarityBorder(card.rarity)} hover:scale-[1.02]`
+
+    // Type guard to check if card is CardWithDetail
+    const isCardWithDetail = (card: CardWithDetail | CardWithIdol): card is CardWithDetail => {
+        return 'profiles' in card;
+    }
 
     return (
         <div
@@ -78,7 +84,7 @@ export default function PrevCard({
                     {/* Gloss Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-20 mix-blend-overlay"></div>
 
-                    {/* 🛡️ ACTIONS CONTAINER (Top Left) */}
+                    {/* ACTIONS CONTAINER (Top Left) */}
                     <div className="absolute top-2 left-2 z-40 flex flex-col gap-2">
 
                         {/* A. Selection Checkmark */}
@@ -91,7 +97,7 @@ export default function PrevCard({
                             </div>
                         )}
 
-                        {/* B. 👁️ Inspect Button (New) */}
+                        {/* B. Inspect Button (New) */}
                         {onInspect && (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onInspect(card); }}
@@ -123,12 +129,15 @@ export default function PrevCard({
                                 <div className="mt-1 flex items-center justify-between">
                                     <p className="text-[10px] md:text-xs font-bold text-white truncate max-w-[120px]">
                                         {card.subject_category === 'Solo' ? (card.idols?.stage_name || 'IDOL') :
-                                            card.subject_category === 'Unit' ? (card.unit_names?.map(i => i?.name).join(', ') || 'UNIT') :
-                                                'GROUP'}
+                                            card.subject_category === 'Unit' ? (
+                                                Array.isArray(card.unit_names) 
+                                                    ? card.unit_names.map(i => typeof i === 'object' && i !== null && 'name' in i ? i.name : '').filter(Boolean).join(', ') || 'UNIT'
+                                                    : 'UNIT'
+                                            ) : 'GROUP'}
                                     </p>
 
                                     {/* Admin User Tag */}
-                                    {submitted_by ? (
+                                    {submitted_by && isCardWithDetail(card) ? (
                                         <div className="flex items-center gap-1 text-[9px] text-gray-400 bg-black/40 px-1.5 py-0.5 rounded-md border border-white/5">
                                             <User className="h-2.5 w-2.5" />
                                             <span className="truncate max-w-[60px]">{card.profiles?.username}</span>

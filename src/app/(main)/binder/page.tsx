@@ -1,8 +1,8 @@
 'use client'
 
 import { useModal } from '@/app/providers/modalProvider';
-import { Button } from '@/components/cards/UI/button';
-import { Input } from '@/components/cards/UI/input';
+import { Button } from '@/components/UI/button';
+import { Input } from '@/components/UI/input';
 import { SearchBar } from '@/components/searchBar';
 import { Book, Plus, MoreVertical, Layers, Search, Star } from 'lucide-react'
 import Image from 'next/image';

@@ -3,21 +3,25 @@
 import { getRarityBorder, getRarityText, getShadow } from '@/helper'
 import { Enums } from '@/types/database.helper'
 import { Check, X, RotateCcw } from 'lucide-react'
-import { use, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Input } from './input'
+import { GroupOption } from '@/app/(main)/dashboard/cards/page'
 
 interface FilterMenuUIProps {
     onClose: () => void
+    onConfirm: (filters: FilterProps) => void
+    currentFilters: FilterProps
+    groups: GroupOption[]
 }
 
 export interface FilterProps {
     sort_by: string,
-    groups: number | null,
-    card_type: string[],
-    rarity: string[]
+    groups: string | null,
+    card_type: Enums<'card_type'>[],
+    rarity: Enums<'card_rarity'>[]
 }
 
-export default function FilterMenuUI({ onClose, onConfirm, currentFilters, groups }) {
+export default function FilterMenuUI({ onClose, onConfirm, currentFilters, groups }: FilterMenuUIProps) {
     const [selectedSort, setSelectedSort] = useState(currentFilters.sort_by || 'newest');
     const [selectedGroups, setSelectedGroups] = useState(currentFilters.groups || null);
     const [selectedType, setSelectedType] = useState(currentFilters.card_type || []);
@@ -33,14 +37,7 @@ export default function FilterMenuUI({ onClose, onConfirm, currentFilters, group
 
     console.log(groups)
     console.log(selectedGroups)
-
-    // const groups = [
-    //     { id: 1, name: 'ITZY' },
-    //     { id: 2, name: 'AESPA' },
-    //     { id: 3, name: 'TWICE' },
-    //     { id: 4, name: 'STRAY KIDS' },
-    // ]
-
+    
     const cardType: Enums<'card_type'>[] = [
         'Album PC',
         'Broadcast',

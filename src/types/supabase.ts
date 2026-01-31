@@ -62,6 +62,13 @@ export type Database = {
             foreignKeyName: "groups_parent_group_id_fkey"
             columns: ["parent_group_id"]
             isOneToOne: false
+            referencedRelation: "active_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_parent_group_id_fkey"
+            columns: ["parent_group_id"]
+            isOneToOne: false
             referencedRelation: "groups"
             referencedColumns: ["id"]
           },
@@ -87,6 +94,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "member_groups_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "active_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "member_groups_group_id_fkey"
             columns: ["group_id"]
@@ -156,6 +170,7 @@ export type Database = {
           image_url: string | null
           name: string
           rarity: Database["public"]["Enums"]["card_rarity"] | null
+          rejected_reason: string | null
           release_id: string | null
           source: string | null
           status: Database["public"]["Enums"]["card_status"] | null
@@ -171,6 +186,7 @@ export type Database = {
           image_url?: string | null
           name: string
           rarity?: Database["public"]["Enums"]["card_rarity"] | null
+          rejected_reason?: string | null
           release_id?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["card_status"] | null
@@ -186,6 +202,7 @@ export type Database = {
           image_url?: string | null
           name?: string
           rarity?: Database["public"]["Enums"]["card_rarity"] | null
+          rejected_reason?: string | null
           release_id?: string | null
           source?: string | null
           status?: Database["public"]["Enums"]["card_status"] | null
@@ -221,6 +238,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          created_at: string | null
           email: string | null
           full_name: string | null
           id: string
@@ -230,6 +248,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          created_at?: string | null
           email?: string | null
           full_name?: string | null
           id: string
@@ -239,6 +258,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          created_at?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
@@ -274,6 +294,13 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "releases_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "active_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "releases_group_id_fkey"
             columns: ["group_id"]
@@ -314,10 +341,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      active_groups: {
+        Row: {
+          id: string | null
+          name: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       card_rarity: "N" | "R" | "SR" | "SSR" | "UR"

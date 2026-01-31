@@ -8,7 +8,7 @@ import ApproveModal from '@/components/dashboard/approveModal';
 import { createClient } from '@/utils/supabase/client';
 import { Tables } from '@/types/supabase';
 import { useToast } from '@/app/providers/toastProvider';
-import BackButton from '@/components/cards/UI/backButton';
+import BackButton from '@/components/UI/backButton';
 import BulkRejectModal from '@/components/dashboard/rejectionModal';
 import { PrevCardSkeleton } from '@/components/cards/cardSkeleton';
 

@@ -1,20 +1,19 @@
-// useDebounce.ts (or just paste inside your component file)
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 export function useDebounce<T>(value: T, delay: number): T {
-    const [debouncedValue, setDebouncedValue] = useState(value);
+    const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
     useEffect(() => {
-        // Set a timer to update the value
+        // Set up the timeout
         const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
+            setDebouncedValue(value)
+        }, delay)
 
-        // Cancel the timer if the user types again (cleans up previous effect)
+        // Clean up the timeout if value changes before delay is reached
         return () => {
-            clearTimeout(handler);
-        };
-    }, [value, delay]);
+            clearTimeout(handler)
+        }
+    }, [value, delay])
 
-    return debouncedValue;
+    return debouncedValue
 }

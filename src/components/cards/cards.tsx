@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation' 
 
 interface CardProps {
@@ -31,7 +32,7 @@ export default function CardItem({id, name, image_url, rarity, price, status }: 
         <div onClick={() => handleNavigation(id)} className="group relative overflow-hidden rounded-2xl border border-gray-800 bg-[#161B22] transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:shadow-lg hover:shadow-pink-500/10 cursor-pointer">
             {/* Image */}
             <div className="aspect-[3/4] w-full overflow-hidden bg-gray-800">
-                <img src='https://kzcucrksqzdypkmlviex.supabase.co/storage/v1/object/public/Cards/WhatsApp%20Image%202025-12-21%20at%209.57.33%20AM%20(2).jpeg' alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                <Image src='https://kzcucrksqzdypkmlviex.supabase.co/storage/v1/object/public/Cards/WhatsApp%20Image%202025-12-21%20at%209.57.33%20AM%20(2).jpeg' alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
             </div>
 
             {/* Card Info */}

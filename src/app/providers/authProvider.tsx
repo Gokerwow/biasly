@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, ReactNode, useContext, useState } from "react"
+import { createContext, ReactNode, useContext, useEffect, useState } from "react"
 import { Database } from "@/types/supabase"
 
 export type Profile = Database['public']['Tables']['profiles']['Row']
@@ -23,6 +23,10 @@ export function UserProvider({ children, initialUser }: ChildrenProps) {
     const value = { user, initialUser, setUser }
 
     console.log(user)
+
+    useEffect(() => {
+        setUser(initialUser)
+    }, [initialUser])
 
     return (
         <userContext.Provider value={value}>

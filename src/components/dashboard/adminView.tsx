@@ -177,7 +177,7 @@ export default function AdminView() {
                                 </div>
                             </Link>
 
-                            <ConsoleLink href="/admin/users" icon={Users} label="User Mgmt" color="purple" />
+                            <ConsoleLink href={ROUTES.DASHBOARD.USERMGMT} icon={Users} label="User Mgmt" color="purple" />
                             <ConsoleLink href="/admin/reports" icon={Flag} label="Reports" color="red" hasDot />
 
                             <Link href="/admin/analytics" className="group col-span-2 relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10 hover:border-cyan-500/30 transition-all">

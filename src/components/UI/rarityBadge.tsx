@@ -1,7 +1,7 @@
-export default function RarityBadge({ tier }: { tier: string }) {
+export default function RarityBadge({ tier }: { tier: string | null }) {
 
-    const getStyle = (tier: string) => {
-        switch (tier.toUpperCase()) {
+    const getStyle = (tier: string | null) => {
+        switch (tier?.toUpperCase()) {
             case 'UR':
                 // The "Prismatic" Effect
                 return "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white animate-text border-transparent shadow-[0_0_15px_rgba(236,72,153,0.6)]"

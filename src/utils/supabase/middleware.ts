@@ -1,6 +1,6 @@
-// File: utils/supabase/middleware.ts
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { ADMIN_ROUTES } from '@/constants'
 
 export async function updateSession(request: NextRequest) {
     let response = NextResponse.next({
@@ -9,55 +9,55 @@ export async function updateSession(request: NextRequest) {
         },
     })
 
-    // Buat client di middleware yang bisa membaca dan menulis cookies
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
             cookies: {
-                get(name: string) {
-                    return request.cookies.get(name)?.value
+                getAll() {
+                    return request.cookies.getAll()
                 },
-                set(name: string, value: string, options: CookieOptions) {
-                    request.cookies.set({
-                        name,
-                        value,
-                        ...options,
-                    })
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
                     response = NextResponse.next({
                         request: {
                             headers: request.headers,
                         },
                     })
-                    response.cookies.set({
-                        name,
-                        value,
-                        ...options,
-                    })
-                },
-                remove(name: string, options: CookieOptions) {
-                    request.cookies.set({
-                        name,
-                        value: '',
-                        ...options,
-                    })
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    })
-                    response.cookies.set({
-                        name,
-                        value: '',
-                        ...options,
-                    })
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        response.cookies.set(name, value, options)
+                    )
                 },
             },
         }
     )
 
-    // Langkah paling penting: Refresh sesi agar tidak kedaluwarsa
-    await supabase.auth.getUser()
+    // 1. Get the user
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // 2. Define Admin Routes
+    const isAdminRoute = ADMIN_ROUTES.some(item => request.nextUrl.pathname.startsWith(item))
+
+    // 3. Security Check
+    if (isAdminRoute) {
+        if (!user) {
+            // Not logged in? Go to login
+            return NextResponse.redirect(new URL('/login', request.url))
+        }
+
+        // Option B: Check database role (Best for scalability)
+        // Note: This adds a DB fetch to every navigation, so use sparingly or cache it
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role') // Make sure your profile table has a 'role' column
+            .eq('id', user.id)
+            .single()
+
+        if (profile?.role !== 'admin') {
+            // Logged in but not admin? Go to unauthorized page or dashboard
+            return NextResponse.redirect(new URL('/unauthorized', request.url))
+        }
+    }
 
     return response
 }

@@ -50,6 +50,27 @@ const nextConfig: NextConfig = {
 
     return config
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY', // Prevents people from putting your site in an iframe
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff', // Prevents browser from guessing file types
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin', // Privacy protection
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -1,7 +1,7 @@
 'use client'
 
 import { Signup } from './action'
-import { Input } from '@/components/cards/UI/input';
+import { Input } from '@/components/UI/input';
 import { RectangleEllipsis, User, AtSign, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { useActionState } from 'react';

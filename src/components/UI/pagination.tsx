@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
-export default function Pagination({ totalItems, itemsPerPage, currentPage, onNext, onPrevious, onPageChange }) {
+export default function Pagination({ totalItems, itemsPerPage, currentPage, onPageChange }) {
     const totalPages = Math.ceil(totalItems / itemsPerPage)
     if (totalPages <= 1) return null;
 

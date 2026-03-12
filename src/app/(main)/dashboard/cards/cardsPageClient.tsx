@@ -125,7 +125,7 @@ export default function CardsPageClient({
                 </div>
 
                 {/* Toolbar */}
-                <div className="sticky top-4 z-20 rounded-2xl border border-white/10 bg-black/60 p-4 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row gap-4">
+                <div className="sticky top-4 z-20 rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 relative group">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-pink-500 transition-colors">
                             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}

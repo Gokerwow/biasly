@@ -238,31 +238,52 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banned_at: string | null
+          banned_by: string | null
+          banned_reason: string | null
+          banned_until: string | null
           created_at: string | null
+          deleted_at: string | null
           email: string | null
           full_name: string | null
           id: string
-          role: string | null
+          role: Database["public"]["Enums"]["roles"] | null
+          unban_reason: string | null
+          unbanned_by: string | null
           updated_at: string | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          banned_at?: string | null
+          banned_by?: string | null
+          banned_reason?: string | null
+          banned_until?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           email?: string | null
           full_name?: string | null
           id: string
-          role?: string | null
+          role?: Database["public"]["Enums"]["roles"] | null
+          unban_reason?: string | null
+          unbanned_by?: string | null
           updated_at?: string | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          banned_at?: string | null
+          banned_by?: string | null
+          banned_reason?: string | null
+          banned_until?: string | null
           created_at?: string | null
+          deleted_at?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
-          role?: string | null
+          role?: Database["public"]["Enums"]["roles"] | null
+          unban_reason?: string | null
+          unbanned_by?: string | null
           updated_at?: string | null
           username?: string | null
         }
@@ -363,6 +384,7 @@ export type Database = {
         | "Broadcast"
       group_status: "Active" | "Hiatus" | "Disbanded"
       release_category: "Album" | "Merch" | "Event" | "Membership"
+      roles: "admin" | "user"
       subject_type: "Solo" | "Unit" | "Group"
     }
     CompositeTypes: {
@@ -496,6 +518,7 @@ export const Constants = {
       card_type: ["Album PC", "POB", "Lucky Draw", "Trading Card", "Broadcast"],
       group_status: ["Active", "Hiatus", "Disbanded"],
       release_category: ["Album", "Merch", "Event", "Membership"],
+      roles: ["admin", "user"],
       subject_type: ["Solo", "Unit", "Group"],
     },
   },

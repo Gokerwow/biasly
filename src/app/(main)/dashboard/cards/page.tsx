@@ -48,7 +48,7 @@ export default async function CardsPage({
         .eq('status', 'accepted')
         .range(startIndex, endIndex)
         .order(filters.sort_by === 'name' ? 'name' : 'created_at', {
-            ascending: filters.sort_by === 'newest' ? false : true
+            ascending: filters.sort_by === 'oldest' ? true : false
         });
 
     // Apply filters

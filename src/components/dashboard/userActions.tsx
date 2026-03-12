@@ -1,24 +1,22 @@
 'use client'
 
-import { useState, useEffect, useRef } from "react"
-import { Shield, ShieldAlert, Trash2, Copy } from "lucide-react"
-import { createClient } from "@/utils/supabase/client"
-import { useRouter } from "next/navigation"
+import { useEffect, useRef } from "react"
+import { Shield, ShieldAlert, Trash2, Copy, CheckCheck } from "lucide-react"
 import { useToast } from "@/app/providers/toastProvider"
 
 interface UserActionsProps {
     userId: string
     currentRole: string
     username: string
+    isLoading: boolean
+    isBanned: boolean
     onClose: () => void
-    onDelete: () => void
+    onBan: (id: string, type: 'ban' | 'unban') => void
+    onToggle: (id: string, currentRole: string) => void
 }
 
-export default function UserActions({ userId, currentRole, username, onClose, onDelete }: UserActionsProps) {
-    const [isLoading, setIsLoading] = useState(false)
+export default function UserActions({ userId, currentRole, username, isLoading, isBanned, onClose, onBan, onToggle }: UserActionsProps) {
     const menuRef = useRef<HTMLDivElement>(null)
-    const router = useRouter()
-    const supabase = createClient()
     const { showToast } = useToast()
 
     // Close menu when clicking outside
@@ -35,35 +33,6 @@ export default function UserActions({ userId, currentRole, username, onClose, on
     const handleCopyId = () => {
         navigator.clipboard.writeText(userId)
         showToast("User ID copied!", 'success')
-    }
-
-    const handleToggleRole = async () => {
-        setIsLoading(true)
-        const newRole = currentRole === 'admin' ? 'user' : 'admin'
-
-        try {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ role: newRole })
-                .eq('id', userId)
-
-            if (error) throw error
-
-            showToast(`User is now an ${newRole.toUpperCase()}`, 'success')
-            router.refresh()
-            onClose()
-        } catch (error) {
-            showToast("Failed to update role", 'error')
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    const handleDelete = async () => {
-        if (confirm("Are you sure? This only deletes the profile, not the auth account (requires admin API).")) {
-
-        }
-        onClose()
     }
 
     return (
@@ -86,7 +55,7 @@ export default function UserActions({ userId, currentRole, username, onClose, on
                     {/* Action: Toggle Role */}
                     <button
                         disabled={isLoading}
-                        onClick={handleToggleRole}
+                        onClick={() => onToggle(userId, currentRole)}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white rounded-lg transition-colors group"
                     >
                         {isLoading ? (
@@ -103,11 +72,21 @@ export default function UserActions({ userId, currentRole, username, onClose, on
 
                     {/* Action: Delete */}
                     <button
-                        onClick={() => onDelete()}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors"
+                        onClick={() =>isBanned ? onBan(userId, 'unban') : onBan(userId, 'ban')}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${isBanned ? 'text-green-400 hover:bg-green-500/10 hover:text-green-300' : 'text-red-400 hover:bg-red-500/10 hover:text-red-300'} rounded-lg transition-colors`}
                     >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Ban User
+                        {isBanned ? (
+                            <>
+                                <CheckCheck className="h-3.5 w-3.5" />
+                                Unban User
+                            </>
+                        )
+                            :
+                            <>
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Ban User
+                            </>
+                        }
                     </button>
                 </div>
             </div>

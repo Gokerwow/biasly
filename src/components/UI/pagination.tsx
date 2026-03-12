@@ -6,7 +6,6 @@ export default function Pagination({ totalItems, itemsPerPage, currentPage, onPa
     const totalPages = Math.ceil(totalItems / itemsPerPage)
     if (totalPages <= 1) return null;
 
-
     const startItem = (currentPage - 1) * itemsPerPage + 1;
     const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -25,7 +24,7 @@ export default function Pagination({ totalItems, itemsPerPage, currentPage, onPa
             // page 1,2,3,4,...,100(total)
             if (currentPage <= 4) {
                 pages.push(1, 2, 3, 4, 5, '...', totalPages);
-            }   
+            }
             // If near the end
             else if (currentPage >= totalPages - 3) {
                 pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
@@ -46,7 +45,7 @@ export default function Pagination({ totalItems, itemsPerPage, currentPage, onPa
 
                 {/* PREVIOUS BUTTON */}
                 <button
-                    onClick={() => onPageChange('page', currentPage - 1)}
+                    onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className="group cursor-pointer flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)]"
                 >
@@ -74,7 +73,7 @@ export default function Pagination({ totalItems, itemsPerPage, currentPage, onPa
                     return (
                         <button
                             key={page}
-                            onClick={() => onPageChange('page', page)} // Use the new prop
+                            onClick={() => onPageChange(page)} // Use the new prop
                             className={`cursor-pointer ${isActive
                                 ? "relative h-10 w-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 text-sm font-bold text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-transform hover:scale-105"
                                 : "h-10 w-10 rounded-xl text-sm font-bold text-gray-400 transition-all hover:bg-white/5 hover:text-white"
@@ -91,7 +90,7 @@ export default function Pagination({ totalItems, itemsPerPage, currentPage, onPa
 
                 {/* NEXT BUTTON */}
                 <button
-                    onClick={() => onPageChange('page', currentPage + 1)}
+                    onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className="group cursor-pointer flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400 hover:shadow-[0_0_15px_rgba(168,85,247,0.2)]"
                 >

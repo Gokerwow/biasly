@@ -9,6 +9,7 @@ export default async function UsersPage({ searchParams }: { searchParams: { sear
 
     const query = params?.search || ''
     const currentPage = Number(params?.page) || 1
+    console.log(currentPage)
     const itemsPerPage = 10
 
     // 1. Fetch Users with Pagination & Search

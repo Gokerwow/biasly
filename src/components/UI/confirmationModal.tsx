@@ -1,7 +1,7 @@
 'use client'
 
 import { AlertTriangle, X, CheckCircle2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 
 interface ConfirmationModalProps {
@@ -10,18 +10,24 @@ interface ConfirmationModalProps {
     onConfirm: () => void
     title: string
     description: string
+    disabled?: boolean
+    children?: React.ReactNode
     isLoading?: boolean
-    variant?: 'danger' | 'success' | 'warning' // Default is generic/pink
+    variant?: 'danger' | 'success' | 'warning'
+    value?: string
+    onChange?: (e: ChangeEvent<HTMLInputElement>) => void
 }
 
-export default function ConfirmationModal({ 
-    isOpen, 
-    onClose, 
-    onConfirm, 
-    title, 
-    description, 
+export default function ConfirmationModal({
+    isOpen,
+    onClose,
+    onConfirm,
+    title,
+    description,
+    disabled = false,
+    children,
     isLoading = false,
-    variant = 'warning' 
+    variant = 'warning',
 }: ConfirmationModalProps) {
     const [isVisible, setIsVisible] = useState(false)
     const [mounted, setMounted] = useState(false)
@@ -65,29 +71,29 @@ export default function ConfirmationModal({
 
     const modalContent = (
         // ✅ FIXED: z-[9999] ensures it's above EVERYTHING
-        <div 
+        <div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={onClose} // Click backdrop to close
         >
             {/* Modal Container */}
-            <div 
+            <div
                 onClick={(e) => e.stopPropagation()} // Prevent closing when clicking modal content
                 className={`w-full max-w-md transform overflow-hidden rounded-2xl border border-white/10 bg-[#161B22] p-6 text-left shadow-2xl transition-all duration-200 ease-out
                 ${isOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
             >
-                
+
                 {/* Close Button (Top Right) */}
-                <button 
-                    onClick={onClose} 
+                <button
+                    onClick={onClose}
                     disabled={isLoading}
                     className="absolute right-4 top-4 rounded-lg p-1 text-gray-500 transition-colors hover:bg-white/5 hover:text-white z-10"
                 >
                     <X className="h-5 w-5" />
                 </button>
 
-                <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+                <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-left">
                     {/* Icon Wrapper */}
-                    <div className={`mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-white/5 sm:mx-0 ${theme.iconBg}`}>
+                    <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/5 sm:mx-0 ${theme.iconBg}`}>
                         {theme.icon}
                     </div>
 
@@ -95,11 +101,12 @@ export default function ConfirmationModal({
                     <h3 className="text-xl font-black uppercase italic tracking-tight text-white">
                         {title}
                     </h3>
-                    <div className="mt-2">
+                    <div className="">
                         <p className="text-sm font-medium leading-relaxed text-gray-400">
                             {description}
                         </p>
                     </div>
+                    <div className="flex-1 w-full">{children}</div>
                 </div>
 
                 {/* Footer Buttons */}
@@ -107,14 +114,14 @@ export default function ConfirmationModal({
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="inline-flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-gray-300 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50 sm:w-auto"
+                        className="inline-flex w-full items-center justify-center cursor-pointer rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-gray-300 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50 sm:w-auto"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={onConfirm}
-                        disabled={isLoading}
-                        className={`inline-flex w-full items-center justify-center rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto ${theme.button}`}
+                        disabled={isLoading || disabled}
+                        className={`inline-flex w-full items-center justify-center cursor-pointer rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto ${theme.button}`}
                     >
                         {isLoading ? (
                             <div className="flex items-center gap-2">

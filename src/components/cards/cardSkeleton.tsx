@@ -1,5 +1,4 @@
 // Add this import if you put this in a separate file
-import { ImageIcon } from "lucide-react"; 
 
 export function PrevCardSkeleton() {
     return (

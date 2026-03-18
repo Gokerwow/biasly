@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -14,6 +14,229 @@ export type Database = {
   }
   public: {
     Tables: {
+      ban_appeals: {
+        Row: {
+          admin_note: string | null
+          ban_log_id: number | null
+          created_at: string
+          id: number
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["appel_status"] | null
+        }
+        Insert: {
+          admin_note?: string | null
+          ban_log_id?: number | null
+          created_at?: string
+          id?: number
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["appel_status"] | null
+        }
+        Update: {
+          admin_note?: string | null
+          ban_log_id?: number | null
+          created_at?: string
+          id?: number
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["appel_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ban_appeals_ban_log_id_fkey"
+            columns: ["ban_log_id"]
+            isOneToOne: false
+            referencedRelation: "ban_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ban_logs: {
+        Row: {
+          action: Database["public"]["Enums"]["action"] | null
+          action_by: string | null
+          created_at: string
+          end_date: string | null
+          id: number
+          metadata: Json | null
+          reason: string | null
+          start_date: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: Database["public"]["Enums"]["action"] | null
+          action_by?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          metadata?: Json | null
+          reason?: string | null
+          start_date?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["action"] | null
+          action_by?: string | null
+          created_at?: string
+          end_date?: string | null
+          id?: number
+          metadata?: Json | null
+          reason?: string | null
+          start_date?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      binder_cards: {
+        Row: {
+          created_at: string
+          id: number
+          page_id: number | null
+          position: number | null
+          user_collection_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          page_id?: number | null
+          position?: number | null
+          user_collection_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          page_id?: number | null
+          position?: number | null
+          user_collection_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "binder_cards_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "binder_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "binder_cards_user_collection_id_fkey"
+            columns: ["user_collection_id"]
+            isOneToOne: false
+            referencedRelation: "user_collection"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      binder_pages: {
+        Row: {
+          binder_id: string | null
+          created_at: string
+          id: number
+          page_number: number | null
+        }
+        Insert: {
+          binder_id?: string | null
+          created_at?: string
+          id?: number
+          page_number?: number | null
+        }
+        Update: {
+          binder_id?: string | null
+          created_at?: string
+          id?: number
+          page_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "binder_pages_binder_id_fkey"
+            columns: ["binder_id"]
+            isOneToOne: false
+            referencedRelation: "binders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      binders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      card_modifiers: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: number
+          modifier: number | null
+          name: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          modifier?: number | null
+          name?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          modifier?: number | null
+          name?: string | null
+        }
+        Relationships: []
+      }
+      distribution_types: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string | null
+          rarity_weight: number | null
+          tier: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string | null
+          rarity_weight?: number | null
+          tier?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string | null
+          rarity_weight?: number | null
+          tier?: string | null
+        }
+        Relationships: []
+      }
       groups: {
         Row: {
           agency: string | null
@@ -21,6 +244,9 @@ export type Database = {
           created_at: string | null
           id: string
           image_url: string | null
+          is_compressed: boolean | null
+          is_logo_migrated: boolean | null
+          is_migrated: boolean | null
           logo_url: string | null
           name: string
           parent_group_id: string | null
@@ -35,6 +261,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           image_url?: string | null
+          is_compressed?: boolean | null
+          is_logo_migrated?: boolean | null
+          is_migrated?: boolean | null
           logo_url?: string | null
           name: string
           parent_group_id?: string | null
@@ -49,6 +278,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           image_url?: string | null
+          is_compressed?: boolean | null
+          is_logo_migrated?: boolean | null
+          is_migrated?: boolean | null
           logo_url?: string | null
           name?: string
           parent_group_id?: string | null
@@ -123,6 +355,8 @@ export type Database = {
           created_at: string | null
           id: string
           image_url: string | null
+          is_compressed: boolean | null
+          is_migrated: boolean | null
           last_synced_at: string | null
           native_name: string | null
           real_name: string | null
@@ -137,6 +371,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           image_url?: string | null
+          is_compressed?: boolean | null
+          is_migrated?: boolean | null
           last_synced_at?: string | null
           native_name?: string | null
           real_name?: string | null
@@ -151,6 +387,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           image_url?: string | null
+          is_compressed?: boolean | null
+          is_migrated?: boolean | null
           last_synced_at?: string | null
           native_name?: string | null
           real_name?: string | null
@@ -162,61 +400,110 @@ export type Database = {
         }
         Relationships: []
       }
-      photocards: {
+      photocard_submissions: {
         Row: {
-          created_at: string | null
+          created_at: string
+          data: Json | null
           id: string
-          idol_id: string | null
-          image_url: string | null
-          name: string
-          rarity: Database["public"]["Enums"]["card_rarity"] | null
-          rejected_reason: string | null
-          release_id: string | null
-          source: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: Database["public"]["Enums"]["card_status"] | null
-          subject_category: Database["public"]["Enums"]["subject_type"]
           submitted_by: string | null
-          type: Database["public"]["Enums"]["card_type"]
-          unit_names: Json[] | null
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          data?: Json | null
           id?: string
-          idol_id?: string | null
-          image_url?: string | null
-          name: string
-          rarity?: Database["public"]["Enums"]["card_rarity"] | null
-          rejected_reason?: string | null
-          release_id?: string | null
-          source?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["card_status"] | null
-          subject_category: Database["public"]["Enums"]["subject_type"]
           submitted_by?: string | null
-          type: Database["public"]["Enums"]["card_type"]
-          unit_names?: Json[] | null
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          data?: Json | null
           id?: string
-          idol_id?: string | null
-          image_url?: string | null
-          name?: string
-          rarity?: Database["public"]["Enums"]["card_rarity"] | null
-          rejected_reason?: string | null
-          release_id?: string | null
-          source?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["card_status"] | null
-          subject_category?: Database["public"]["Enums"]["subject_type"]
           submitted_by?: string | null
-          type?: Database["public"]["Enums"]["card_type"]
-          unit_names?: Json[] | null
         }
         Relationships: [
           {
-            foreignKeyName: "photocards_member_id_fkey"
-            columns: ["idol_id"]
+            foreignKeyName: "photocard_submissions_submitted_by_fkey1"
+            columns: ["submitted_by"]
             isOneToOne: false
-            referencedRelation: "idols"
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photocards: {
+        Row: {
+          back_image_url: string | null
+          created_at: string | null
+          distribution_type_id: string | null
+          front_image_url: string | null
+          id: string
+          is_double_sided: boolean | null
+          is_horizontal: boolean | null
+          name: string
+          primary_group_id: string | null
+          rarity: Database["public"]["Enums"]["card_rarity"] | null
+          release_id: string | null
+          submission_id: string | null
+        }
+        Insert: {
+          back_image_url?: string | null
+          created_at?: string | null
+          distribution_type_id?: string | null
+          front_image_url?: string | null
+          id?: string
+          is_double_sided?: boolean | null
+          is_horizontal?: boolean | null
+          name: string
+          primary_group_id?: string | null
+          rarity?: Database["public"]["Enums"]["card_rarity"] | null
+          release_id?: string | null
+          submission_id?: string | null
+        }
+        Update: {
+          back_image_url?: string | null
+          created_at?: string | null
+          distribution_type_id?: string | null
+          front_image_url?: string | null
+          id?: string
+          is_double_sided?: boolean | null
+          is_horizontal?: boolean | null
+          name?: string
+          primary_group_id?: string | null
+          rarity?: Database["public"]["Enums"]["card_rarity"] | null
+          release_id?: string | null
+          submission_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photocards_distribution_type_id_fkey"
+            columns: ["distribution_type_id"]
+            isOneToOne: false
+            referencedRelation: "distribution_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photocards_primary_group_id_fkey"
+            columns: ["primary_group_id"]
+            isOneToOne: false
+            referencedRelation: "active_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photocards_primary_group_id_fkey"
+            columns: ["primary_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
           {
@@ -227,10 +514,82 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "photocards_submitted_by_fkey"
-            columns: ["submitted_by"]
+            foreignKeyName: "photocards_submission_id_fkey"
+            columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "photocard_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photocards_card_modifiers: {
+        Row: {
+          card_id: string | null
+          created_at: string
+          id: number
+          modifier_id: number | null
+        }
+        Insert: {
+          card_id?: string | null
+          created_at?: string
+          id?: number
+          modifier_id?: number | null
+        }
+        Update: {
+          card_id?: string | null
+          created_at?: string
+          id?: number
+          modifier_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photocards_modifiers_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "photocards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photocards_modifiers_modifier_id_fkey"
+            columns: ["modifier_id"]
+            isOneToOne: false
+            referencedRelation: "card_modifiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photocards_idol: {
+        Row: {
+          card_id: string | null
+          created_at: string
+          id: number
+          idol_id: string | null
+        }
+        Insert: {
+          card_id?: string | null
+          created_at?: string
+          id?: number
+          idol_id?: string | null
+        }
+        Update: {
+          card_id?: string | null
+          created_at?: string
+          id?: number
+          idol_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photocards_subject_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "photocards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photocards_subject_idol_id_fkey"
+            columns: ["idol_id"]
+            isOneToOne: false
+            referencedRelation: "idols"
             referencedColumns: ["id"]
           },
         ]
@@ -238,8 +597,6 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
-          banned_at: string | null
-          banned_by: string | null
           banned_reason: string | null
           banned_until: string | null
           created_at: string | null
@@ -247,16 +604,14 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_banned: boolean | null
+          preferred_currency: string | null
           role: Database["public"]["Enums"]["roles"] | null
-          unban_reason: string | null
-          unbanned_by: string | null
           updated_at: string | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
-          banned_at?: string | null
-          banned_by?: string | null
           banned_reason?: string | null
           banned_until?: string | null
           created_at?: string | null
@@ -264,16 +619,14 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          is_banned?: boolean | null
+          preferred_currency?: string | null
           role?: Database["public"]["Enums"]["roles"] | null
-          unban_reason?: string | null
-          unbanned_by?: string | null
           updated_at?: string | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
-          banned_at?: string | null
-          banned_by?: string | null
           banned_reason?: string | null
           banned_until?: string | null
           created_at?: string | null
@@ -281,9 +634,9 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_banned?: boolean | null
+          preferred_currency?: string | null
           role?: Database["public"]["Enums"]["roles"] | null
-          unban_reason?: string | null
-          unbanned_by?: string | null
           updated_at?: string | null
           username?: string | null
         }
@@ -296,6 +649,7 @@ export type Database = {
           group_id: string | null
           id: string
           release_date: string | null
+          solo_idol_id: string | null
           title: string
         }
         Insert: {
@@ -304,6 +658,7 @@ export type Database = {
           group_id?: string | null
           id?: string
           release_date?: string | null
+          solo_idol_id?: string | null
           title: string
         }
         Update: {
@@ -312,6 +667,7 @@ export type Database = {
           group_id?: string | null
           id?: string
           release_date?: string | null
+          solo_idol_id?: string | null
           title?: string
         }
         Relationships: [
@@ -329,31 +685,169 @@ export type Database = {
             referencedRelation: "groups"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "releases_idol_id_fkey"
+            columns: ["solo_idol_id"]
+            isOneToOne: false
+            referencedRelation: "idols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      releases_idol: {
+        Row: {
+          created_at: string
+          id: number
+          idol_id: string | null
+          releases_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          idol_id?: string | null
+          releases_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          idol_id?: string | null
+          releases_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_era_idol_id_fkey"
+            columns: ["idol_id"]
+            isOneToOne: false
+            referencedRelation: "idols"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_era_releases_id_fkey"
+            columns: ["releases_id"]
+            isOneToOne: false
+            referencedRelation: "releases"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_collection: {
         Row: {
           acquired_at: string | null
+          acquired_currency:
+            | Database["public"]["Enums"]["acquired_currency"]
+            | null
+          acquired_price: number | null
+          condition: string | null
           id: string
+          is_verified: boolean | null
+          notes: string | null
           photocard_id: string | null
           user_id: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           acquired_at?: string | null
+          acquired_currency?:
+            | Database["public"]["Enums"]["acquired_currency"]
+            | null
+          acquired_price?: number | null
+          condition?: string | null
           id?: string
+          is_verified?: boolean | null
+          notes?: string | null
           photocard_id?: string | null
           user_id?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           acquired_at?: string | null
+          acquired_currency?:
+            | Database["public"]["Enums"]["acquired_currency"]
+            | null
+          acquired_price?: number | null
+          condition?: string | null
           id?: string
+          is_verified?: boolean | null
+          notes?: string | null
           photocard_id?: string | null
           user_id?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "user_collection_photocard_id_fkey"
             columns: ["photocard_id"]
+            isOneToOne: false
+            referencedRelation: "photocards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_collection_modifiers: {
+        Row: {
+          created_at: string | null
+          id: number
+          modifier_id: number | null
+          user_collection_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: never
+          modifier_id?: number | null
+          user_collection_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: never
+          modifier_id?: number | null
+          user_collection_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_collection_modifiers_modifier_id_fkey"
+            columns: ["modifier_id"]
+            isOneToOne: false
+            referencedRelation: "card_modifiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_collection_modifiers_user_collection_id_fkey"
+            columns: ["user_collection_id"]
+            isOneToOne: false
+            referencedRelation: "user_collection"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_wishlist: {
+        Row: {
+          card_id: string | null
+          created_at: string
+          id: number
+          priority: Database["public"]["Enums"]["wishlist_priority"] | null
+          user_id: string | null
+        }
+        Insert: {
+          card_id?: string | null
+          created_at?: string
+          id?: number
+          priority?: Database["public"]["Enums"]["wishlist_priority"] | null
+          user_id?: string | null
+        }
+        Update: {
+          card_id?: string | null
+          created_at?: string
+          id?: number
+          priority?: Database["public"]["Enums"]["wishlist_priority"] | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_wishlist_card_id_fkey"
+            columns: ["card_id"]
             isOneToOne: false
             referencedRelation: "photocards"
             referencedColumns: ["id"]
@@ -374,18 +868,16 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
+      acquired_currency: "IDR" | "KRW" | "USD" | "EUR"
+      action: "ban" | "unban"
+      appel_status: "approved" | "rejected" | "pending"
       card_rarity: "N" | "R" | "SR" | "SSR" | "UR"
       card_status: "pending" | "rejected" | "accepted"
-      card_type:
-        | "Album PC"
-        | "POB"
-        | "Lucky Draw"
-        | "Trading Card"
-        | "Broadcast"
       group_status: "Active" | "Hiatus" | "Disbanded"
       release_category: "Album" | "Merch" | "Event" | "Membership"
       roles: "admin" | "user"
-      subject_type: "Solo" | "Unit" | "Group"
+      subject_type: "Solo" | "Unit" | "Group" | "Multi" | "Mascot Pet"
+      wishlist_priority: "high" | "medium" | "low"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -513,13 +1005,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      acquired_currency: ["IDR", "KRW", "USD", "EUR"],
+      action: ["ban", "unban"],
+      appel_status: ["approved", "rejected", "pending"],
       card_rarity: ["N", "R", "SR", "SSR", "UR"],
       card_status: ["pending", "rejected", "accepted"],
-      card_type: ["Album PC", "POB", "Lucky Draw", "Trading Card", "Broadcast"],
       group_status: ["Active", "Hiatus", "Disbanded"],
       release_category: ["Album", "Merch", "Event", "Membership"],
       roles: ["admin", "user"],
-      subject_type: ["Solo", "Unit", "Group"],
+      subject_type: ["Solo", "Unit", "Group", "Multi", "Mascot Pet"],
+      wishlist_priority: ["high", "medium", "low"],
     },
   },
 } as const

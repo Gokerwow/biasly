@@ -1,14 +1,14 @@
 "use server"
 
 import { createClient } from "@/utils/supabase/server"
-import { getProfile } from "../userServer"
+import { getProfile } from "../app/lib/userServer"
 import { addToDate } from "@/helper/calculateDate"
 
 export async function ChangeUserRole(newRole: 'admin' | 'user', id: string) {
     const supabase = await createClient()
     try {
-        const user = await getProfile()
-        if (user?.profile.role != 'admin') {
+        const profile = await getProfile()
+        if (profile?.role != 'admin') {
             return {
                 success: false,
                 message: "Unauthorized",
@@ -42,8 +42,8 @@ export async function ChangeUserRole(newRole: 'admin' | 'user', id: string) {
 export async function BanUser(userID: string, values: { years?: number, months?: number, days?: number, ban?: string } ) {
     const supabase = await createClient()
     try {
-        const user = await getProfile()
-        if (user?.profile.role != 'admin') {
+        const profile = await getProfile()
+        if (profile?.role != 'admin') {
             return {
                 success: false,
                 message: "Unauthorized",
@@ -59,7 +59,7 @@ export async function BanUser(userID: string, values: { years?: number, months?:
         
         const { error } = await supabase
             .from('profiles')
-            .update({ banned_at: now, banned_by: user.profile.id, banned_reason: ban, banned_until: bannedUntil})
+            .update({ banned_at: now, banned_by: profile.id, banned_reason: ban, banned_until: bannedUntil})
             .eq('id', userID)
         if (error) {
             return {
@@ -85,19 +85,17 @@ export async function BanUser(userID: string, values: { years?: number, months?:
 export async function UnbanUser(userID: string, unbanReason: string ) {
     const supabase = await createClient()
     try {
-        const user = await getProfile()
-        if (user?.profile.role != 'admin') {
+        const profile = await getProfile()
+        if (profile?.role != 'admin') {
             return {
                 success: false,
                 message: "Unauthorized",
             }
         }
-
-        const now = new Date().toISOString()
-        
+                
         const { error } = await supabase
             .from('profiles')
-            .update({ unban_reason: unbanReason, unbanned_by: user.profile.id, banned_until: null, banned_at:null })
+            .update({ unban_reason: unbanReason, unbanned_by: profile.id, banned_until: null, banned_at:null })
             .eq('id', userID)
         if (error) {
             return {

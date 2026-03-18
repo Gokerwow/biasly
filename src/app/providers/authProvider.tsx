@@ -1,9 +1,7 @@
 'use client'
 
-import { createContext, ReactNode, useContext, useEffect, useState } from "react"
-import { Database } from "@/types/supabase"
-
-export type Profile = Database['public']['Tables']['profiles']['Row']
+import { Profile } from "@/types/database.helper";
+import { createContext, ReactNode, useContext, useState } from "react"
 
 interface ChildrenProps {
     children: ReactNode,
@@ -11,23 +9,19 @@ interface ChildrenProps {
 }
 
 type UserContextType = {
-    user: Profile | null;
-    setUser: (user: Profile | null) => void;
+    profile: Profile | null;
+    setProfile: (user: Profile | null) => void;
 };
 
 const userContext = createContext<UserContextType | null>(null)
 
 export function UserProvider({ children, initialUser }: ChildrenProps) {
-    const [user, setUser] = useState<Profile | null>(initialUser)
+    const [profile, setProfile] = useState<Profile | null>(initialUser)
 
-    const value = { user, initialUser, setUser }
+    const value = { profile, initialUser, setProfile }
 
-    console.log(user)
-
-    useEffect(() => {
-        setUser(initialUser)
-    }, [initialUser])
-
+    console.log(profile)
+    
     return (
         <userContext.Provider value={value}>
             {children}

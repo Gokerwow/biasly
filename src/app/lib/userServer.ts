@@ -26,5 +26,5 @@ export const getProfile = cache(async () => {
         return null
     }
 
-    return { user, profile }
+    return profile
 })

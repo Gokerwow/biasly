@@ -12,7 +12,7 @@ import UserActions from "./userActions"
 import ConfirmationModal from "../UI/confirmationModal"
 import { useToast } from "@/app/providers/toastProvider"
 import { useForm } from "@/helper/useForm"
-import { BanUser, ChangeUserRole, UnbanUser } from "@/app/lib/actions/user_action"
+import { BanUser, ChangeUserRole, UnbanUser } from "@/actions/user_action"
 
 interface UserTableProps {
     users: Tables<'profiles'>[]

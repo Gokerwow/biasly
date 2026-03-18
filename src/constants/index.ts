@@ -99,3 +99,25 @@ export const IndividualCategories = {
     // VIRTUAL
     VIRTUAL_SINGERS: 'Virtual_singers'
 }
+
+export const TABLES = {
+    PHOTOCARDS: 'photocards',
+    PHOTOCARDS_IDOL: 'photocards_idol',
+    PHOTOCARDS_CARD_MODIFIERS: 'photocards_card_modifiers',
+    RELEASES: 'releases',
+    RELEASES_IDOL: 'releases_idol',
+    GROUPS: 'groups',
+    IDOLS: 'idols',
+    IDOL_GROUPS: 'idol_groups',
+    DISTRIBUTION_TYPES: 'distribution_types',
+    CARD_MODIFIERS: 'card_modifiers',
+    USER_COLLECTION: 'user_collection',
+    USER_WISHLIST: 'user_wishlist',
+    BINDERS: 'binders',
+    BINDER_PAGES: 'binder_pages',
+    BINDER_CARDS: 'binder_cards',
+    PROFILES: 'profiles',
+    BAN_LOGS: 'ban_logs',
+    BAN_APPEALS: 'ban_appeals',
+    PHOTOCARD_SUBMISSIONS: 'photocard_submissions',
+} as const

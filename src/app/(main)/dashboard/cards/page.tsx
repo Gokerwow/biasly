@@ -3,6 +3,7 @@ import CardsPageClient from "./cardsPageClient";
 import { Tables } from "@/types/supabase";
 import { FilterProps } from "@/components/UI/filter";
 import { Enums } from "@/types/database.helper";
+import { GetApprovedCard } from "@/queries/photocards";
 
 type SearchParams = {
     search?: string;
@@ -25,69 +26,72 @@ export default async function CardsPage({
 }: {
     searchParams: SearchParams;
 }) {
-    const supabase = await createClient();
     const params = await searchParams
 
-    const currentPage = Number(params.page) || 1;
-    const itemsPerPage = 20;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage - 1;
+    const cardsData = await GetApprovedCard()
 
-    // Parse filters from searchParams
-    const filters: FilterProps = {
-        sort_by: params.sort_by || '',
-        groups: params.groups || '',
-        card_type: params.card_type?.split(',').map(i => i.trim()) as Enums<'card_type'>[] || [],
-        rarity: params.rarity?.split(',').map(i => i.trim()) as Enums<'card_rarity'>[] || [],
-    };
+    console.log(cardsData)
 
-    // Build query
-    let queryBuilder = supabase
-        .from('photocards')
-        .select('*, idols(id, stage_name), releases!inner(id, group_id, groups!inner(id, name, slug))', { count: 'exact' })
-        .eq('status', 'accepted')
-        .range(startIndex, endIndex)
-        .order(filters.sort_by === 'name' ? 'name' : 'created_at', {
-            ascending: filters.sort_by === 'oldest' ? true : false
-        });
+    // const currentPage = Number(params.page) || 1;
+    // const itemsPerPage = 20;
+    // const startIndex = (currentPage - 1) * itemsPerPage;
+    // const endIndex = startIndex + itemsPerPage - 1;
 
-    // Apply filters
-    if (params.search) {
-        queryBuilder = queryBuilder.ilike('name', `%${params.search}%`);
-    }
+    // // Parse filters from searchParams
+    // const filters: FilterProps = {
+    //     sort_by: params.sort_by || '',
+    //     groups: params.groups || '',
+    //     card_type: params.card_type?.split(',').map(i => i.trim()) as Enums<'card_type'>[] || [],
+    //     rarity: params.rarity?.split(',').map(i => i.trim()) as Enums<'card_rarity'>[] || [],
+    // };
 
-    if (filters.groups) {
-        queryBuilder = queryBuilder.eq('releases.group_id', filters.groups);
-    }
+    // // Build query
+    // let queryBuilder = supabase
+    //     .from('photocards')
+    //     .select('*, idols(id, stage_name), releases!inner(id, group_id, groups!inner(id, name, slug))', { count: 'exact' })
+    //     .eq('status', 'accepted')
+    //     .range(startIndex, endIndex)
+    //     .order(filters.sort_by === 'name' ? 'name' : 'created_at', {
+    //         ascending: filters.sort_by === 'oldest' ? true : false
+    //     });
 
-    if (filters.card_type.length > 0) {
-        queryBuilder = queryBuilder.in('type', filters.card_type);
-    }
+    // // Apply filters
+    // if (params.search) {
+    //     queryBuilder = queryBuilder.ilike('name', `%${params.search}%`);
+    // }
 
-    if (filters.rarity.length > 0) {
-        queryBuilder = queryBuilder.in('rarity', filters.rarity);
-    }
+    // if (filters.groups) {
+    //     queryBuilder = queryBuilder.eq('releases.group_id', filters.groups);
+    // }
 
-    // Fetch data
-    const [cardsResult, groupsResult] = await Promise.all([
-        queryBuilder,
-        supabase.from('active_groups').select('*').order('name')
-    ]);
+    // if (filters.card_type.length > 0) {
+    //     queryBuilder = queryBuilder.in('type', filters.card_type);
+    // }
 
-    const cardsData = cardsResult.data || [];
-    const totalItems = cardsResult.count || 0;
-    const groups = groupsResult.data || [];
+    // if (filters.rarity.length > 0) {
+    //     queryBuilder = queryBuilder.in('rarity', filters.rarity);
+    // }
+
+    // // Fetch data
+    // const [cardsResult, groupsResult] = await Promise.all([
+    //     queryBuilder,
+    //     supabase.from('active_groups').select('*').order('name')
+    // ]);
+
+    // const cardsData = cardsResult.data || [];
+    // const totalItems = cardsResult.count || 0;
+    // const groups = groupsResult.data || [];
 
     // Pass to Client Component
     return (
         <CardsPageClient
             initialCards={cardsData}
-            groups={groups}
-            totalItems={totalItems}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            initialFilters={filters}
-            initialSearch={params.search || ''}
+            // groups={groups}
+            // totalItems={totalItems}
+            // currentPage={currentPage}
+            // itemsPerPage={itemsPerPage}
+            // initialFilters={filters}
+            // initialSearch={params.search || ''}
         />
     );
 }

@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "scrape:main": "tsx scripts/main/main.ts",
-    "update-types": "npx supabase gen types typescript --project-id kzcucrksqzdypkmlviex --schema public",
-    "seed": "npx tsx --env-file=.env.local scripts/seed/seed.ts"
+    "update-types": "npx supabase gen types typescript --project-id kzcucrksqzdypkmlviex --schema public > src/types/supabase.ts",
+    "seed": "npx tsx --env-file=.env.local scripts/seed/seed.ts",
+    "migrate": "npx tsx --env-file=.env.local scripts/migrate/index.ts"
   },
   "dependencies": {
     "@next/env": "^16.1.4",
@@ -18,6 +19,7 @@
     "@supabase/supabase-js": "^2.51.0",
     "axios": "^1.12.1",
     "cheerio": "^1.1.2",
+    "cloudinary": "^2.9.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.525.0",
     "motion": "^12.26.2",

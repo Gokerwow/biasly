@@ -29,7 +29,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const session = await getProfile()
+  const profile = await getProfile()
 
   return (
     <html lang="en">
@@ -38,7 +38,7 @@ export default async function RootLayout({
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UserProvider initialUser={session?.profile ?? null}>
+        <UserProvider initialUser={profile ?? null}>
           <ModalProvider>
             <ToastProvider>
             <main>

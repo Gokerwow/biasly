@@ -63,7 +63,7 @@ export default function ApproveModal({ item, itemLength, onClose, onApprove, onR
                                     distribution_type={null}
                                     physical_types={[]}
                                     idols={(cardData.idol_names ?? []).map(name => ({ stage_name: name }))}
-                                    type="browse"
+                                    type="collection"
                                 />
                             </div>
                         </div>

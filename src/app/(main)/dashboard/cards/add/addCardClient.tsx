@@ -338,11 +338,11 @@ export default function AddCardClient() {
                         <div className="relative z-10 flex flex-col items-center">
                             <CardItem
                                 id="preview"
-                                type="browse"
+                                type="collection"
                                 distribution_type={formData.card_distribution?.name ?? null}
                                 group_name={groups.find(g => g.id === formData.group_id)?.name ?? null}
                                 front_image_url={formData.frontPreviewUrl || null}
-                                idols={formData.idol_ids.map(i => ({ stage_name: i.stage_name }))}
+                                idols={formData.idol_ids}
                                 name={formData.name || 'Card Name'}
                                 physical_types={formData.card_physical ? [{ name: formData.card_physical.name }] : []}
                                 rarity={formData.rarity}

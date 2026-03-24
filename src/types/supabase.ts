@@ -454,6 +454,7 @@ export type Database = {
           primary_group_id: string | null
           rarity: Database["public"]["Enums"]["card_rarity"] | null
           release_id: string | null
+          search_vector: unknown
           submission_id: string | null
         }
         Insert: {
@@ -468,6 +469,7 @@ export type Database = {
           primary_group_id?: string | null
           rarity?: Database["public"]["Enums"]["card_rarity"] | null
           release_id?: string | null
+          search_vector?: unknown
           submission_id?: string | null
         }
         Update: {
@@ -482,6 +484,7 @@ export type Database = {
           primary_group_id?: string | null
           rarity?: Database["public"]["Enums"]["card_rarity"] | null
           release_id?: string | null
+          search_vector?: unknown
           submission_id?: string | null
         }
         Relationships: [
@@ -516,7 +519,7 @@ export type Database = {
           {
             foreignKeyName: "photocards_submission_id_fkey"
             columns: ["submission_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "photocard_submissions"
             referencedColumns: ["id"]
           },
@@ -737,11 +740,12 @@ export type Database = {
             | Database["public"]["Enums"]["acquired_currency"]
             | null
           acquired_price: number | null
+          card_id: string | null
           condition: string | null
+          created_at: string | null
           id: string
           is_verified: boolean | null
           notes: string | null
-          photocard_id: string | null
           user_id: string | null
           verified_at: string | null
           verified_by: string | null
@@ -752,11 +756,12 @@ export type Database = {
             | Database["public"]["Enums"]["acquired_currency"]
             | null
           acquired_price?: number | null
+          card_id?: string | null
           condition?: string | null
+          created_at?: string | null
           id?: string
           is_verified?: boolean | null
           notes?: string | null
-          photocard_id?: string | null
           user_id?: string | null
           verified_at?: string | null
           verified_by?: string | null
@@ -767,11 +772,12 @@ export type Database = {
             | Database["public"]["Enums"]["acquired_currency"]
             | null
           acquired_price?: number | null
+          card_id?: string | null
           condition?: string | null
+          created_at?: string | null
           id?: string
           is_verified?: boolean | null
           notes?: string | null
-          photocard_id?: string | null
           user_id?: string | null
           verified_at?: string | null
           verified_by?: string | null
@@ -779,7 +785,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "user_collection_photocard_id_fkey"
-            columns: ["photocard_id"]
+            columns: ["card_id"]
             isOneToOne: false
             referencedRelation: "photocards"
             referencedColumns: ["id"]

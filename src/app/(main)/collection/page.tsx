@@ -1,56 +1,67 @@
-'use client'
-
+import { getProfile } from '@/app/lib/userServer'
 import CardItem from '@/components/cards/cards'
-import { Filter, SlidersHorizontal, Search, LayoutGrid, List } from 'lucide-react'
-import Image from 'next/image'
+import { GetUserCollections } from '@/queries/photocards'
+import { SimpleIdol } from '@/types'
+import { Filter, Search, LayoutGrid, List } from 'lucide-react'
 
-// Dummy Data to match the "Lamumu" Grid vibe
-const CARDS = [
-    { id: 1, name: 'Yeji Checkmate', status: 'Owned', rarity: 'Rare', price: '$12', image: 'https://pbs.twimg.com/media/GD5rsqbaIAAr-x0.jpg' },
-    { id: 2, name: 'Ryujin Cheshire', status: 'Wishlist', rarity: 'Common', price: '$5', image: 'https://i.ebayimg.com/images/g/H0IAAOSw~Bpl38~Q/s-l1200.jpg' },
-    { id: 3, name: 'Yuna Kill My Doubt', status: 'Owned', rarity: 'Legendary', price: '$45', image: 'https://pbs.twimg.com/media/F_i2-eUbAAAbj3d.jpg' },
-    { id: 4, name: 'Chaeryeong Born to Be', status: 'Owned', rarity: 'Rare', price: '$15', image: 'https://upload.wikimedia.org/wikipedia/en/3/36/Itzy_-_Born_to_Be.png' },
-    { id: 5, name: 'Lia Not Shy', status: 'Wishlist', rarity: 'Common', price: '$8', image: 'https://upload.wikimedia.org/wikipedia/en/8/86/Twice_-_With_You-th.png' },
-    { id: 6, name: 'Yeji Voltage', status: 'Owned', rarity: 'Epic', price: '$25', image: 'https://upload.wikimedia.org/wikipedia/en/e/e3/Red_Velvet_-_Chill_Kill.png' },
-]
 
-export default function CollectionPage() {
+export default async function CollectionPage() {
+    const profile = await getProfile()
+
+    const userCollections = profile ? await GetUserCollections(profile?.id) : []
+    const recentCollectedCard = userCollections.slice(0, 6)
+
     return (
         <div className="flex flex-col gap-6">
 
-            {/* --- 1. HERO BANNER (Like the Cows image) --- */}
-            <div className="relative h-64 w-full overflow-hidden rounded-3xl border border-gray-800 bg-gray-900">
-                {/* Background Image */}
-                <div className="absolute inset-0 opacity-40">
-                    <Image
-                        src="/assets/images/220715-ITZY-Yuna-Music-Bank-Commute-documents-5(2).jpeg"
-                        alt="Yuna Background"
-                        fill
-                        className="object-cover object-center"
-                        priority
-                    />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E11] via-transparent to-transparent"></div>
+            {/* --- 1. HERO BANNER --- */}
+            <div className="relative w-full overflow-hidden rounded-3xl border border-gray-800 bg-[#161B22]">
 
-                {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 w-full p-8">
-                    <div className="flex items-end justify-between">
-                        <div>
-                            <h1 className="text-4xl font-extrabold text-white">My Full Collection</h1>
-                            <p className="mt-2 text-gray-400">Manage, track, and filter your inventory.</p>
+                {/* Decorative background pattern */}
+                <div className="absolute inset-0 opacity-5"
+                    style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}
+                />
+
+                {/* Pink glow */}
+                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-pink-500/10 blur-3xl" />
+                <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
+
+                <div className="relative z-10 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+
+                    {/* Left — title */}
+                    <div>
+                        <p className="text-xs font-black text-pink-500 uppercase tracking-widest mb-2">
+                            Your Vault
+                        </p>
+                        <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase">
+                            My Collection
+                        </h1>
+                        <p className="mt-1 text-gray-400 text-sm">
+                            Manage, track, and flex your inventory.
+                        </p>
+                    </div>
+
+                    {/* Right — stats */}
+                    <div className="flex gap-4 shrink-0">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center">
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Cards</p>
+                            <p className="font-mono text-2xl font-black text-white mt-1">
+                                {userCollections.length}
+                            </p>
                         </div>
-
-                        {/* Stats Box (Like "Floor Price" in your image) */}
-                        <div className="flex gap-6 rounded-xl border border-gray-700 bg-black/50 px-6 py-3 backdrop-blur-md">
-                            <div className="text-center">
-                                <p className="text-xs font-bold text-gray-500 uppercase">Total Cards</p>
-                                <p className="font-mono text-lg font-bold text-white">1,240</p>
-                            </div>
-                            <div className="h-full w-px bg-gray-700"></div>
-                            <div className="text-center">
-                                <p className="text-xs font-bold text-gray-500 uppercase">Est. Value</p>
-                                <p className="font-mono text-lg font-bold text-green-400">$8,450</p>
-                            </div>
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center">
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Groups</p>
+                            <p className="font-mono text-2xl font-black text-pink-400 mt-1">
+                                {new Set(userCollections.map(c => c.photocards?.groups?.name).filter(Boolean)).size}
+                            </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center">
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Idols</p>
+                            <p className="font-mono text-2xl font-black text-purple-400 mt-1">
+                                {new Set(userCollections.flatMap(c =>
+                                    c.photocards?.photocards_idol.map(pi => pi.idol?.id) ?? []
+                                ).filter(Boolean)).size}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -112,9 +123,23 @@ export default function CollectionPage() {
 
                     {/* Cards Grid */}
                     <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-                        {CARDS.map((card) => (
-                            <CardItem key={card.id} id={card.id} image_url={card.image} name={card.name} price={card.price} rarity={card.rarity} status={card.status} />
-                        ))}
+                        {userCollections.map((card) => {
+                            if (!card.photocards) return null
+                            const idols = card.photocards?.photocards_idol.map(i => i.idol)
+
+                            return <CardItem
+                                key={card.id}
+                                id={card.photocards.id}
+                                front_image_url={card.photocards.front_image_url}
+                                group_name={card.photocards.groups?.name ?? 'No Group Name'}
+                                name={card.photocards.name}
+                                rarity={card.photocards.rarity ?? 'N'}
+                                idols={idols.filter((i) => i !== null) as SimpleIdol[]}
+                                distribution_type={card.photocards.distribution_types?.name}
+                                release_title={card.photocards?.releases?.title}
+                                type='collection'
+                            />
+                        })}
                     </div>
                 </div>
 

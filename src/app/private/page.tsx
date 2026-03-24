@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 export default async function PrivatePage() {
     console.log("--- Mencoba mengakses halaman /private ---"); // Log 1
 
-    const supabase = createClient(); // Menggunakan server client
+    const supabase = await createClient(); // Menggunakan server client
 
     const { data, error } = await supabase.auth.getUser();
 

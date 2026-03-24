@@ -27,3 +27,4 @@ export type PhotocardIdol           = Tables<'photocards_idol'>
 // Enums
 export type CardRarity              = Enums<'card_rarity'>
 export type CardStatus              = Enums<'card_status'>
+export type wishlistPriority        = Enums<'wishlist_priority'>

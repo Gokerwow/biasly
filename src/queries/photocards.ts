@@ -1,7 +1,7 @@
 'use server'
 
 import { TABLES } from "@/constants";
-import { PhotocardData } from "@/types";
+import { ListPhotocard, PhotocardData } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 
 export async function getGroups(search?: string) {
@@ -203,7 +203,7 @@ export async function GetSubmissionsData() {
     return enriched
 }
 
-export async function GetApprovedCard() {
+export async function GetApprovedCard(): Promise<ListPhotocard[]> {
     const supabase = await createClient()
 
     // 1. Get Data
@@ -221,6 +221,161 @@ export async function GetApprovedCard() {
         .order('created_at', { ascending: false })
 
     if (error) throw error
-    
+
     return PhotocardData
+}
+
+export async function GetUserCollectionIds(userID: string) {
+    const supabase = await createClient()
+
+    const { data: collectionData, error } = await supabase
+        .from(TABLES.USER_COLLECTION)
+        .select(`card_id`)
+        .eq('user_id', userID)
+
+
+    if (error) {
+        console.log(`Error at getting user collections data for forms ${error}`)
+        throw new Error(`Error at getting user collections data for forms: ${error}`)
+    }
+
+    return collectionData.map(item => item.card_id) ?? []
+}
+
+export async function GetUserCollections(userID: string) {
+    const supabase = await createClient()
+
+    const { data: collectionData, error } = await supabase
+        .from(TABLES.USER_COLLECTION)
+        .select(`
+                *,
+                photocards(
+                    id,
+                    name,
+                    front_image_url,
+                    rarity,
+                    distribution_types(name),
+                    groups(name),
+                    releases(title),
+                    photocards_idol(
+                        idol:idols(id, stage_name)
+                    )
+                )
+            `)
+        .eq('user_id', userID)
+        .order('acquired_at', { ascending: false })
+
+    if (error) {
+        console.log(`Error at getting user collections data for forms ${error}`)
+        throw new Error(`Error at getting user collections data for forms: ${error}`)
+    }
+
+    return collectionData ?? []
+}
+
+export async function GetUserWishlistIds(userID: string) {
+    const supabase = await createClient()
+
+    const { data: wishlistData, error } = await supabase
+        .from(TABLES.USER_WISHLIST)
+        .select(`card_id`)
+        .eq('user_id', userID)
+
+    if (error) {
+        console.log(`Error at getting user collections data for forms ${error}`)
+        throw new Error(`Error at getting user collections data for forms: ${error}`)
+    }
+
+    return wishlistData.map(item => item.card_id) ?? []
+}
+
+export async function GetUserWishlist(userID: string) {
+    const supabase = await createClient()
+
+    const { data: wishlistData, error } = await supabase
+        .from(TABLES.USER_WISHLIST)
+        .select(`
+                *,
+                photocards(
+                    id,
+                    name,
+                    front_image_url,
+                    rarity,
+                    distribution_types(name),
+                    groups(name),
+                    releases(title),
+                    photocards_idol(
+                        idol:idols(id, stage_name)
+                    )
+                )
+            `)
+        .eq('user_id', userID)
+
+    if (error) {
+        console.log(`Error at getting user wishlist data ${error}`)
+        throw new Error(`Error at getting user wishlist data: ${error}`)
+    }
+
+    return wishlistData ?? []
+}
+
+export async function GetCardByID(id: string) {
+    const supabase = await createClient()
+
+    const { data: cardData, error } = await supabase
+        .from(TABLES.PHOTOCARDS)
+        .select(`
+                *,
+                groups(id, name, slug),
+                photocards_idol(
+                    idol:idols(id, stage_name, slug)
+                ),
+                releases(id, title),
+                distribution_types(id, name)
+            `)
+        .eq('id', id)
+        .single()
+
+    if (error) {
+        console.log(`Error at getting card details data ${error}`)
+        throw new Error(`Error at getting card details data: ${error}`)
+    }
+
+    return cardData
+}
+
+export async function CheckCardOwning(userID: string, cardID: string) {
+    const supabase = await createClient()
+
+    const { data: ownedData, error } = await supabase
+        .from(TABLES.USER_COLLECTION)
+        .select(`*`)
+        .eq('user_id', userID)
+        .eq('card_id', cardID)
+        .maybeSingle()
+
+    if (error) {
+        console.log(`Error at getting card owned data ${error}`)
+        throw new Error(`Error at getting card owned data: ${error}`)
+    }
+
+    return ownedData
+}
+
+export async function CheckCardWishlisted(userID: string, cardID: string) {
+    const supabase = await createClient()
+
+    const { data: wishlistedData, error } = await supabase
+        .from(TABLES.USER_WISHLIST)
+        .select(`id, priority`)
+        .eq('user_id', userID)
+        .eq('card_id', cardID)
+        .maybeSingle()
+
+    if (error) {
+        console.log(`Error at getting card wishlisted data ${error}`)
+        throw new Error(`Error at getting card wishlisted data: ${error}`)
+    }
+
+    return wishlistedData
 }

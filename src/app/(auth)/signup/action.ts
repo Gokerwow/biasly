@@ -58,7 +58,7 @@ export async function Signup(prevState: any, formData: FormData) {
     if (data.session) {
         redirect('/dashboard')
     } else {
-        redirect('/verify?email=${encodeURIComponent(email)}')
+        redirect(`/verify?email=${encodeURIComponent(email)}`)
     }
 
 }

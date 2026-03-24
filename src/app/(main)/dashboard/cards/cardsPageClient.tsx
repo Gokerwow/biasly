@@ -30,8 +30,6 @@ export default function CardsPageClient({ initialCards }: Props) {
         );
     }, [query, initialCards]);
 
-    const flatIdol = initialCards.map(c => c.photocards_idol.map(pi => pi.idol))
-
     return (
         <div className="flex flex-col gap-6 relative">
             <div>
@@ -113,7 +111,7 @@ export default function CardsPageClient({ initialCards }: Props) {
                                 >
                                     <CardItem
                                         id="preview"
-                                        type="browse"
+                                        type="collection"
                                         distribution_type={card.distribution_types?.name}
                                         group_name={card.groups?.name ?? null}
                                         front_image_url={card.front_image_url}

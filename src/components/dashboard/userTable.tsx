@@ -32,7 +32,12 @@ export default function UserTable({ users, totalItems, currentPage, itemsPerPage
     const [isSearching, setIsSearching] = useState(false)
     const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
-    const { values, handleChange, resetForm } = useForm('')
+    const { values, handleChange, resetForm } = useForm({
+        ban: '',
+        years: '',
+        months: '',
+        days: ''
+    })
 
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -94,7 +99,7 @@ export default function UserTable({ users, totalItems, currentPage, itemsPerPage
             showToast(`User is now an ${newRole.toUpperCase()}`, 'success')
             router.refresh()
         } catch (error) {
-            showToast(error.message || "Failed to update role", 'error')
+            showToast(error instanceof Error ? error.message : "Failed to update role", 'error')
             throw new Error(`Role update failed: ${error}`);
         } finally {
             setIsToggleLoading(false)
@@ -132,7 +137,7 @@ export default function UserTable({ users, totalItems, currentPage, itemsPerPage
             router.refresh()
             setShowDeleteModal(false)
         } catch (error) {
-            showToast(error.message || "Failed to ban user", 'error')
+            showToast(error instanceof Error ? error.message : "Failed to update role", 'error')
             throw new Error(`Ban user failed: ${error}`);
         } finally {
             setIsDeleting(false)
@@ -217,7 +222,7 @@ export default function UserTable({ users, totalItems, currentPage, itemsPerPage
 
                                 {/* Role Badge */}
                                 <div className="flex items-center md:justify-start">
-                                    {user.banned_at != null ? (
+                                    {user.is_banned != null ? (
                                         <span className="inline-flex items-center gap-1.5 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-bold text-red-400">
                                             <Hammer className="h-3.5 w-3.5" />
                                             BANNED
@@ -254,7 +259,7 @@ export default function UserTable({ users, totalItems, currentPage, itemsPerPage
                                             onClose={() => setOpenMenuId(null)}
                                             onBan={onBan}
                                             onToggle={handleToggleRole}
-                                            isBanned={user.banned_at != null}
+                                            isBanned={user.is_banned ?? false}
                                         />
                                     )}
                                 </div>
@@ -345,12 +350,12 @@ export default function UserTable({ users, totalItems, currentPage, itemsPerPage
                     }
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
-                            What is the reason for the { onBanType === 'ban' ? 'ban' : 'unban' } ?
+                            What is the reason for the {onBanType === 'ban' ? 'ban' : 'unban'} ?
                         </label>
                         <div className="relative group">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-pink-500 transition-colors">
-                                { onBanType === 'ban' ? <Hammer className="h-4 w-4" /> : <CheckCheck className="h-4 w-4" /> }
-                                
+                                {onBanType === 'ban' ? <Hammer className="h-4 w-4" /> : <CheckCheck className="h-4 w-4" />}
+
                             </div>
                             <Input
                                 name="ban"

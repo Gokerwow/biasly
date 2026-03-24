@@ -121,3 +121,22 @@ export const TABLES = {
     BAN_APPEALS: 'ban_appeals',
     PHOTOCARD_SUBMISSIONS: 'photocard_submissions',
 } as const
+
+export const rarityConfig: Record<string, {
+    badge: string
+    border: string
+    glow: string
+    label: string
+}> = {
+    UR:  { badge: 'text-yellow-300 border-yellow-400/50 bg-yellow-400/15',    border: 'group-hover:border-yellow-400/60',  glow: 'group-hover:shadow-yellow-400/25',  label: 'text-yellow-300'  },
+    SSR: { badge: 'text-purple-300 border-purple-400/50 bg-purple-400/15',    border: 'group-hover:border-purple-400/60',  glow: 'group-hover:shadow-purple-400/25',  label: 'text-purple-300'  },
+    SR:  { badge: 'text-blue-300 border-blue-400/50 bg-blue-400/15',          border: 'group-hover:border-blue-400/60',    glow: 'group-hover:shadow-blue-400/25',    label: 'text-blue-300'    },
+    R:   { badge: 'text-emerald-300 border-emerald-400/50 bg-emerald-400/15', border: 'group-hover:border-emerald-400/60', glow: 'group-hover:shadow-emerald-400/25', label: 'text-emerald-300' },
+    N:   { badge: 'text-gray-400 border-gray-500/50 bg-gray-500/15',          border: 'group-hover:border-gray-500/40',    glow: 'group-hover:shadow-gray-500/10',    label: 'text-gray-400'    },
+}
+
+export const priorityConfig: Record<'high' | 'medium' | 'low', string> = {
+    high: 'bg-gradient-to-r from-red-600 to-rose-500 shadow-red-500/50',
+    medium: 'bg-gradient-to-r from-amber-500 to-orange-400 shadow-amber-500/50',
+    low: 'bg-gradient-to-r from-gray-600 to-gray-500 shadow-gray-500/30',
+}

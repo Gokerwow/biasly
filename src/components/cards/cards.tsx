@@ -3,22 +3,11 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Check, Eye, ShoppingCart, User } from 'lucide-react'
+import { Check, Eye, User } from 'lucide-react'
 import { CardRarity } from '@/types/database.helper'
-
-// ── RARITY CONFIG ──────────────────────────────────────────
-const rarityConfig: Record<string, {
-    badge: string
-    border: string
-    glow: string
-    label: string
-}> = {
-    UR:  { badge: 'text-yellow-300 border-yellow-400/50 bg-yellow-400/15',  border: 'group-hover:border-yellow-400/60',  glow: 'group-hover:shadow-yellow-400/25',  label: 'text-yellow-300'  },
-    SSR: { badge: 'text-purple-300 border-purple-400/50 bg-purple-400/15',  border: 'group-hover:border-purple-400/60',  glow: 'group-hover:shadow-purple-400/25',  label: 'text-purple-300'  },
-    SR:  { badge: 'text-blue-300   border-blue-400/50   bg-blue-400/15',    border: 'group-hover:border-blue-400/60',    glow: 'group-hover:shadow-blue-400/25',    label: 'text-blue-300'    },
-    R:   { badge: 'text-emerald-300 border-emerald-400/50 bg-emerald-400/15', border: 'group-hover:border-emerald-400/60', glow: 'group-hover:shadow-emerald-400/25', label: 'text-emerald-300' },
-    N:   { badge: 'text-gray-400   border-gray-500/50   bg-gray-500/15',    border: 'group-hover:border-gray-500/40',    glow: 'group-hover:shadow-gray-500/10',    label: 'text-gray-400'    },
-}
+import { SimpleIdol } from '@/types'
+import { CardActionBar } from './cardActionBar'
+import { priorityConfig, rarityConfig } from '@/constants'
 
 // ── PROPS ──────────────────────────────────────────────────
 interface CardProps {
@@ -31,7 +20,8 @@ interface CardProps {
     release_title?: string | null
     distribution_type?: string | null
     physical_types?: { name: string | null }[]
-    idols?: { stage_name: string }[]
+    idols?: SimpleIdol[]
+    priority?: 'high' | 'medium' | 'low' | null
 
     // Layout
     width?: string          // default: 'w-full'
@@ -39,7 +29,8 @@ interface CardProps {
     type?: 'collection' | 'browse'
 
     // Browse mode
-    onWishlist?: (e: React.MouseEvent) => void
+    isInWishlist?: boolean
+    isInCollection?: boolean
 
     // Admin mode
     isSelected?: boolean
@@ -48,7 +39,7 @@ interface CardProps {
     submittedBy?: string | null
 }
 
-export default function Card({
+export default function CardItem({
     id,
     name,
     front_image_url,
@@ -58,10 +49,12 @@ export default function Card({
     distribution_type,
     physical_types = [],
     idols = [],
+    priority,
     width = 'w-full',
     asLink = false,
     type = 'browse',
-    onWishlist,
+    isInWishlist,
+    isInCollection,
     isSelected = false,
     onSelect,
     onInspect,
@@ -69,7 +62,8 @@ export default function Card({
 }: CardProps) {
     const [isImageReady, setIsImageReady] = useState(false)
     const rc = rarityConfig[rarity] ?? rarityConfig['N']
-    const idolNames = idols.map(i => i.stage_name.replace(/\(.*?\)/g, '')).join(' · ') || null
+    const pc = priority ? priorityConfig[priority] : priorityConfig['low']
+    const idolNames = idols.map(i => i.stage_name?.replace(/\(.*?\)/g, '')).join(' · ') || null
     const isAdminMode = !!(onSelect || onInspect || submittedBy)
 
     // ── IMAGE BLOCK ────────────────────────────────────────
@@ -82,6 +76,20 @@ export default function Card({
                 : `border-white/10 ${rc.border} group-hover:-translate-y-1 group-hover:shadow-2xl ${rc.glow}`
             }
         `}>
+
+            {priority && (
+                <div className="absolute top-0 right-0 z-30 w-20 h-20 overflow-hidden rounded-tr-2xl">
+                    <div className={`
+                        absolute top-4 -right-1 w-24 py-1
+                        rotate-45 text-center
+                        text-[8px] font-black uppercase tracking-widest text-white shadow-xl
+                        ${pc}
+        `} style={{ right: '-22px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                        {priority}
+                    </div>
+                </div>
+            )}
+
             {/* Image */}
             {front_image_url ? (
                 <>
@@ -109,15 +117,6 @@ export default function Card({
                     {rarity}
                 </span>
             </div>
-
-            {/* Distribution Badge — top right (browse mode) */}
-            {!isAdminMode && distribution_type && (
-                <div className="absolute top-2.5 right-2.5 z-30">
-                    <span className="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest backdrop-blur-md border bg-black/50 text-white/70 border-white/10">
-                        {distribution_type}
-                    </span>
-                </div>
-            )}
 
             {/* Admin — Selection checkmark top right */}
             {isAdminMode && (
@@ -151,33 +150,13 @@ export default function Card({
                 </button>
             )}
 
-            {/* Physical type badges — hover only (browse mode) */}
-            {!isAdminMode && physical_types.length > 0 && (
-                <div className="absolute top-9 left-2.5 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">
-                    {physical_types.map((pt, i) => (
-                        <span key={i} className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest backdrop-blur-md border bg-white/10 text-white/60 border-white/10 w-fit">
-                            {pt.name}
-                        </span>
-                    ))}
-                </div>
-            )}
-
-            {/* Browse — Wishlist button bottom right */}
-            {!isAdminMode && (
-                <button
-                    onClick={(e) => { e.preventDefault(); onWishlist?.(e) }}
-                    className="
-                        absolute bottom-2.5 right-2.5 z-30
-                        h-8 w-8 flex items-center justify-center rounded-xl
-                        bg-pink-600 hover:bg-pink-500 text-white
-                        transition-all duration-200 hover:scale-110 active:scale-95
-                        shadow-lg shadow-pink-900/50
-                        opacity-0 group-hover:opacity-100
-                        translate-y-1 group-hover:translate-y-0
-                    "
-                >
-                    <ShoppingCart className="h-3.5 w-3.5" />
-                </button>
+            {/* Hover Action Bar — bottom of image, browse mode only */}
+            {!isAdminMode && type === 'browse' && (
+                <CardActionBar
+                    cardID={id}
+                    isInCollection={isInCollection ?? false}
+                    isInWishlist={isInWishlist ?? false}
+                />
             )}
 
             {/* Gloss overlay */}
@@ -187,16 +166,17 @@ export default function Card({
 
     // ── TEXT BLOCK ─────────────────────────────────────────
     const textBlock = (
-        <div className="pt-2.5 px-0.5 flex flex-col gap-0.5">
-            {/* Group + Era */}
-            <div className="flex items-center gap-1.5 overflow-hidden">
-                <span className="text-[10px] font-black text-pink-400 uppercase tracking-widest truncate shrink-0">
+        <div className="pt-2 px-0.5 flex flex-col gap-1.5">
+
+            {/* Group + Era — one line */}
+            <div className="flex items-center gap-1 overflow-hidden">
+                <span className="text-[10px] font-black text-pink-400 uppercase tracking-widest shrink-0">
                     {group_name ?? '—'}
                 </span>
                 {release_title && (
                     <>
                         <span className="text-white/20 text-[10px] shrink-0">/</span>
-                        <span className="text-[10px] text-white/40 truncate">{release_title}</span>
+                        <span className="text-[10px] text-white/30 truncate">{release_title}</span>
                     </>
                 )}
             </div>
@@ -206,29 +186,43 @@ export default function Card({
                 {name || 'Card Variant'}
             </h3>
 
-            {/* Idol names + rarity / submitter */}
-            <div className="flex items-center justify-between gap-2">
-                {idolNames && (
-                    <p className={`text-[11px] truncate ${rc.label}`} title={idolNames}>
-                        {idolNames}
-                    </p>
-                )}
+            {/* Idol names */}
+            {idolNames && (
+                <p className={`text-[11px] text-gray-500 truncate ${rc.label}`} title={idolNames}>
+                    {idolNames}
+                </p>
+            )}
 
-                {/* Browse — rarity label */}
-                {!isAdminMode && (
-                    <span className={`text-[10px] font-black uppercase tracking-widest shrink-0 ${rc.label}`}>
-                        {rarity}
-                    </span>
-                )}
+            {/* Chips row — only secondary metadata, NO rarity (already on image) */}
+            {(distribution_type || physical_types.length > 0) && (
+                <div className="flex items-center gap-1 flex-wrap">
+                    {distribution_type && (
+                        <span title={distribution_type} className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide border bg-white/5 text-white/40 border-white/8 truncate max-w-[90px]">
+                            {distribution_type}
+                        </span>
+                    )}
+                    {physical_types.slice(0, 1).map((pt, i) => (
+                        pt.name && (
+                            <span key={i} title={pt.name} className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide border bg-white/5 text-white/40 border-white/8">
+                                {pt.name}
+                            </span>
+                        )
+                    ))}
+                    {physical_types.length > 1 && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded border bg-white/5 text-white/30 border-white/8">
+                            +{physical_types.length - 1}
+                        </span>
+                    )}
+                </div>
+            )}
 
-                {/* Admin — submitter tag */}
-                {isAdminMode && submittedBy && (
-                    <div className="flex shrink-0 items-center gap-1 text-[9px] text-gray-500 bg-white/5 px-1.5 py-0.5 rounded-md border border-white/5">
-                        <User className="h-2.5 w-2.5" />
-                        <span className="truncate max-w-[60px]">{submittedBy}</span>
-                    </div>
-                )}
-            </div>
+            {/* Admin — submitter tag */}
+            {isAdminMode && submittedBy && (
+                <div className="flex items-center gap-1 text-[9px] text-gray-600 bg-white/5 px-1.5 py-0.5 rounded border border-white/5 w-fit">
+                    <User className="h-2.5 w-2.5" />
+                    <span className="truncate max-w-[60px]">{submittedBy}</span>
+                </div>
+            )}
         </div>
     )
 
@@ -237,7 +231,7 @@ export default function Card({
 
     if (asLink) {
         return (
-            <Link href={`/${type}/${id}`} className={wrapperClass}>
+            <Link href={`/photocard/${id}`} className={wrapperClass}>
                 {imageBlock}
                 {textBlock}
             </Link>

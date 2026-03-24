@@ -2,7 +2,7 @@
 
 import { TABLES } from "@/constants"
 import { ActionResponse, CardReviewPayload, CardWithDetail, PhotocardDataPayload } from "@/types"
-import { CardStatus } from "@/types/database.helper"
+import { CardStatus, wishlistPriority } from "@/types/database.helper"
 import { Json } from "@/types/supabase"
 import { createClient } from "@/utils/supabase/server"
 import { v2 as cloudinary } from "cloudinary"
@@ -133,6 +133,56 @@ export async function ReviewCard(
 
         return { success: true }
     } catch (error) {
+        return { success: false, error: error as Error }
+    }
+}
+
+export async function AddCardToWishlist(userID: string, cardID: string, priority?: wishlistPriority): Promise<ActionResponse> {
+    const supabase = await createClient()
+
+    try {
+        const { error } = await supabase
+            .from(TABLES.USER_WISHLIST)
+            .insert({
+                user_id: userID,
+                card_id: cardID,
+                priority: priority
+            })
+
+        if (error) {
+            console.error('Error at adding user wishlist to DB', error)
+            return { success: false, error: error as Error }
+        }
+
+        return { success: true }
+    } catch (error) {
+        console.error('Error at adding user wishlist to DB', error)
+        return { success: false, error: error as Error }
+    }
+}
+
+export async function AddCardToCollection(userID: string, cardID: string): Promise<ActionResponse> {
+    const supabase = await createClient()
+
+    try {
+        const { error } = await supabase
+            .from(TABLES.USER_COLLECTION)
+            .upsert({
+                user_id: userID,
+                card_id: cardID,
+            }, {
+                onConflict: 'user_id, card_id',
+                ignoreDuplicates: true
+            })
+
+        if (error) {
+            console.error('Error at adding user wishlist to DB', error)
+            return { success: false, error: error as Error }
+        }
+
+        return { success: true }
+    } catch (error) {
+        console.error('Error at adding user wishlist to DB', error)
         return { success: false, error: error as Error }
     }
 }

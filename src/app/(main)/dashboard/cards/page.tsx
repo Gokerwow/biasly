@@ -14,10 +14,6 @@ type SearchParams = {
     rarity?: string;
 };
 
-export type CardWithIdol = Tables<'photocards'> & {
-    idols: { id: string, stage_name: string | null } | null,
-}
-
 // Simple type for the groups state
 export type GroupOption = { id: string | null; name: string | null };
 

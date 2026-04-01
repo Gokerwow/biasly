@@ -4,6 +4,8 @@ import React, { useState } from 'react'
 import { Check, X, Edit2 } from 'lucide-react'
 import { CardWithDetail } from '@/types'
 import CardItem from '../cards/cards'
+import { getOptimizedImageUrl } from '@/helper/cloudinary'
+import { CapitalizeFirstletter } from '@/helper/parseString'
 
 interface ApproveModalProps {
     item: CardWithDetail | null
@@ -20,6 +22,7 @@ export default function ApproveModal({ item, itemLength, onClose, onApprove, onR
     if (!item) return null
 
     const cardData = item.data
+    console.log(cardData)
     const profile = item.submitted_by_profile
 
     return (
@@ -50,18 +53,24 @@ export default function ApproveModal({ item, itemLength, onClose, onApprove, onR
                         <div className="lg:col-span-7 relative flex items-center justify-center bg-black/40 p-8 overflow-hidden">
                             <div
                                 className="absolute inset-0 opacity-50 blur-xl bg-center bg-cover scale-150 pointer-events-none"
-                                style={{ backgroundImage: `url(${cardData.front_image_url})` }}
+                                style={{ backgroundImage: `url(${getOptimizedImageUrl(cardData.front_image_url, {
+                                    gravity: 'face',
+                                    crop: 'fill'
+                                })})` }}
                             />
                             <div className="relative z-10 w-70">
                                 <CardItem
+                                    isDoubleSided={cardData.is_double_sided}
+                                    isHorizontal={cardData.is_horizontal}
                                     id={item.id}
                                     name={cardData.name}
                                     front_image_url={cardData.front_image_url}
+                                    back_image_url={cardData.back_image_url}
                                     rarity={cardData.rarity}
                                     group_name={cardData.group_name ?? null}
                                     release_title={null}
                                     distribution_type={null}
-                                    physical_types={[]}
+                                    physical_types={cardData.modifier_names?.map(m => ({ name: m }))}
                                     idols={(cardData.idol_names ?? []).map(name => ({ stage_name: name }))}
                                     type="collection"
                                 />
@@ -96,7 +105,12 @@ export default function ApproveModal({ item, itemLength, onClose, onApprove, onR
 
                                     <div className="grid grid-cols-2 gap-3">
                                         <Field label="Group" value={cardData.group_name} />
-                                        <Field label="Subject Type" value={cardData.subject_type} />
+                                        <Field label="Subject Type" value={CapitalizeFirstletter(cardData.subject_type)} />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Field label="Physical Types" value={cardData.modifier_names?.join(', ') || '—'} />
+                                        <Field label="Distribution Type" value={cardData.distribution_name} />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
@@ -106,6 +120,7 @@ export default function ApproveModal({ item, itemLength, onClose, onApprove, onR
                                         />
                                         <Field label="Rarity" value={cardData.rarity} badge />
                                     </div>
+                                    
                                 </div>
 
                                 {/* Rejection Form */}

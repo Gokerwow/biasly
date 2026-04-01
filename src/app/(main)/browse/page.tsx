@@ -1,18 +1,17 @@
-import { GetReleasesWithCards } from '@/queries/releases'
+import { getReleasesWithCards } from '@/queries/releases'
 import CardItem from '@/components/cards/cards'
 import { Compass, Sparkles, ChevronRight, Filter, Search } from 'lucide-react'
 import Link from 'next/link'
-import { SimpleIdol } from '@/types'
 import { getProfile } from '@/app/lib/userServer'
-import { GetUserCollectionIds, GetUserWishlistIds } from '@/queries/photocards'
+import { getUserCollectionIds, getUserWishlistIds } from '@/queries/photocards'
+import { getOptimizedImageUrl } from '@/helper/cloudinary'
 
 export default async function BrowsePage() {
     const profile = await getProfile()
 
-
-    const releaseWithCards = await GetReleasesWithCards()
-    const collectionIds = profile ? await GetUserCollectionIds(profile.id) : []
-    const wishlistIds = profile ? await GetUserWishlistIds(profile.id) : []
+    const releaseWithCards = await getReleasesWithCards()
+    const collectionIds = profile ? await getUserCollectionIds(profile.id) : []
+    const wishlistIds = profile ? await getUserWishlistIds(profile.id) : []
 
     console.log('INI YGY    ', releaseWithCards)
 
@@ -54,7 +53,11 @@ export default async function BrowsePage() {
 
                 {/* Background image — right side fading left */}
                 <div className="absolute right-0 top-0 h-full w-2/3 bg-cover bg-[center_30%] [mask-image:linear-gradient(to_right,transparent,black_20%)]"
-                    style={{ backgroundImage: `url(${bannerImage})` }}
+                    style={{ backgroundImage: `url(${getOptimizedImageUrl(bannerImage, {
+                        width: 1000,
+                        gravity: 'face',
+                        crop: 'fill'
+                    })})` }}
                 />
 
 
@@ -75,7 +78,7 @@ export default async function BrowsePage() {
                             {featuredRelease.title} <span className="text-pink-500">Era</span>
                         </h2>
                         <p className="text-sm text-gray-400 mt-1 font-medium">
-                            {featuredRelease.groups?.name} · Oct 2024
+                            {featuredRelease.group?.name} · Oct 2024
                         </p>
                     </div>
 
@@ -97,7 +100,7 @@ export default async function BrowsePage() {
                     <div className="flex items-center justify-between border-b border-gray-800/50 pb-4">
                         <div className="flex items-center gap-4">
                             <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">
-                                {release.groups?.name} <span className="text-gray-600 mx-1">/</span> {release.title}
+                                {release.group?.name} <span className="text-gray-600 mx-1">/</span> {release.title}
                             </h3>
                             <span className="rounded-md bg-gray-800 px-2 py-1 text-[10px] font-bold text-gray-500">
                                 {release.release_date ?? release.category}
@@ -115,16 +118,19 @@ export default async function BrowsePage() {
                                 <CardItem
                                     asLink
                                     front_image_url={card.front_image_url}
-                                    group_name={release.groups?.name ?? null}
+                                    back_image_url={card.back_image_url}
+                                    group_name={release.group?.name ?? null}
                                     id={card.id}
                                     name={card.name}
                                     rarity={card.rarity ?? 'N'}
-                                    distribution_type={card.distribution_types?.name}
-                                    idols={card.photocards_idol.map(pi => pi.idol).filter((i) => i !== null) as SimpleIdol[]}
+                                    distribution_type={card.distribution_type?.name}
+                                    physical_types={card.physical_types_global}
+                                    idols={card.idols}
                                     release_title={release.title}
                                     type='browse'
                                     isInCollection={collectionIds.includes(card.id)}
                                     isInWishlist={wishlistIds.includes(card.id)}
+                                    isDoubleSided={card.is_double_sided ?? false}
                                 />
                             </div>
                         ))}

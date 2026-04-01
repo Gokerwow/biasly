@@ -1,347 +1,224 @@
 'use server'
 
 import { TABLES } from "@/constants";
-import { ListPhotocard, PhotocardData } from "@/types";
+import { mapToCleanPhotocard } from "@/helper/cleanPhotocard";
+import { handleQueryError } from "@/helper/errorHandling";
+import { CleanPhotocard, PhotocardData } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 
 export async function getGroups(search?: string) {
-    const supabase = await createClient()
-
-    try {
-        const queryBuilder = supabase
-            .from('groups')
-            .select('id, name')
-
-        if (search) {
-            queryBuilder.ilike('name', `%${search}%`)
-        }
-
-        const { data, error } = await queryBuilder
-
-        if (error) {
-            console.log(`Error at getting group data for forms ${error}`)
-            throw new Error(`Error at getting group data for forms: ${error}`)
-        }
-
-        return data
-
-    } catch (error) {
-        console.log(`Error at getting group data for forms ${error}`)
-        throw new Error(`Error at getting group data for forms: ${error}`)
-    }
+    const supabase = await createClient();
+    const query = supabase.from(TABLES.GROUPS).select('id, name');
+    
+    if (search) query.ilike('name', `%${search}%`);
+    
+    const { data, error } = await query;
+    if (error) handleQueryError(error, 'getting group data for forms');
+    return data;
 }
 
 export async function getIdolsByGroup(groupID: string) {
-    const supabase = await createClient()
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from('idol_groups')
+        .select('id, idols(id, stage_name)')
+        .eq('group_id', groupID);
 
-    try {
-        const queryBuilder = supabase
-            .from('idol_groups')
-            .select('id, idols(id, stage_name)')
-            .eq('group_id', groupID)
-
-        const { data, error } = await queryBuilder
-
-        if (error) {
-            console.log(`Error at getting idol data for forms ${error}`)
-            throw new Error(`Error at getting idol data for forms: ${error}`)
-        }
-
-        return data
-    } catch (error) {
-        console.log(`Error at getting idol data for forms ${error}`)
-        throw new Error(`Error at getting idol data for forms: ${error}`)
-    }
+    if (error) handleQueryError(error, 'getting idol data for forms');
+    return data;
 }
 
 export async function getReleasesByGroup(groupID: string, search?: string) {
-    const supabase = await createClient()
+    const supabase = await createClient();
+    const query = supabase.from('releases').select('id, title').eq('group_id', groupID);
+    
+    if (search) query.ilike('title', `%${search}%`);
 
-    try {
-        const queryBuilder = supabase
-            .from('releases')
-            .select('id, title')
-            .eq('group_id', groupID)
-
-        if (search) {
-            queryBuilder.ilike('title', `%${search}%`)
-        }
-
-        const { data, error } = await queryBuilder
-
-        if (error) {
-            console.log(`Error at getting releases data for forms ${error}`)
-            throw new Error(`Error at getting releases data for forms: ${error}`)
-        }
-
-        return data
-    } catch (error) {
-        console.log(`Error at getting releases data for forms ${error}`)
-        throw new Error(`Error at getting releases data for forms: ${error}`)
-    }
+    const { data, error } = await query;
+    if (error) handleQueryError(error, 'getting releases data for forms');
+    return data;
 }
 
 export async function getReleasesBySoloIdol(idolID: string, search?: string) {
-    const supabase = await createClient()
+    const supabase = await createClient();
+    const query = supabase.from('releases').select('id, title').eq('solo_idol_id', idolID);
+    
+    if (search) query.ilike('title', `%${search}%`);
 
-    try {
-        const queryBuilder = supabase
-            .from('releases')
-            .select('id, title')
-            .eq('solo_idol_id', idolID)
-
-        if (search) {
-            queryBuilder.ilike('title', `%${search}%`)
-        }
-
-        const { data, error } = await queryBuilder
-
-        if (error) {
-            console.log(`Error at getting releases data for forms ${error}`)
-            throw new Error(`Error at getting releases data for forms: ${error}`)
-        }
-
-        return data
-    } catch (error) {
-        console.log(`Error at getting releases data for forms ${error}`)
-        throw new Error(`Error at getting releases data for forms: ${error}`)
-    }
+    const { data, error } = await query;
+    if (error) handleQueryError(error, 'getting solo releases data');
+    return data;
 }
 
-export async function GetCardTypes() {
-    const supabase = await createClient()
-    try {
-        const { data, error } = await supabase
-            .from('distribution_types')
-            .select('id, name, rarity_weight, description')
+export async function getCardTypes() {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from(TABLES.DISTRIBUTION_TYPES)
+        .select('id, name, rarity_weight, description');
 
-        if (error) {
-            console.log(`Error at getting card types data for forms ${error}`)
-            throw new Error(`Error at getting card types data for forms: ${error}`)
-        }
-
-        return data
-
-    } catch (error) {
-        console.log(`Error at getting card types data for forms ${error}`)
-        throw new Error(`Error at getting card types data for forms: ${error}`)
-    }
+    if (error) handleQueryError(error, 'getting card types data');
+    return data;
 }
 
-export async function GetPhysicalTypes() {
-    const supabase = await createClient()
-    try {
-        const { data, error } = await supabase
-            .from('card_modifiers')
-            .select('id, name, modifier, description')
+export async function getPhysicalTypes() {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from(TABLES.GLOBAL_CARDS_MODIFIERS)
+        .select('id, name, modifier, description');
 
-        if (error) {
-            console.log(`Error at getting card modifier data for forms ${error}`)
-            throw new Error(`Error at getting card modifier data for forms: ${error}`)
-        }
-
-        return data
-
-    } catch (error) {
-        console.log(`Error at getting card modifier data for forms ${error}`)
-        throw new Error(`Error at getting card modifier data for forms: ${error}`)
-    }
+    if (error) handleQueryError(error, 'getting physical types data');
+    return data;
 }
 
+export async function getSubmissionsData() {
+    const supabase = await createClient();
 
-export async function GetSubmissionsData() {
-    const supabase = await createClient()
-
-    // 1. Get submissions
     const { data: submissions, error } = await supabase
         .from(TABLES.PHOTOCARD_SUBMISSIONS)
-        .select(`
-            *,
-            submitted_by_profile:profiles!submitted_by(
-                id, email, username, avatar_url
-            )
-        `)
+        .select(`*, submitted_by_profile:profiles!submitted_by(id, email, username, avatar_url)`)
         .eq('status', 'pending')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
-    if (error) throw error
+    if (error) handleQueryError(error, 'getting submissions data');
 
-    // 2. Collect all unique group + idol ids from the data jsonb
-    const allData = submissions.map(s => s.data as unknown as PhotocardData)
+    // ... (Your existing mapping logic here remains great because it's handling raw JSONB payload)
+    const allData = submissions.map(s => s.data as unknown as PhotocardData);
+    const groupIds = [...new Set(allData.map(d => d?.primary_group_id).filter(Boolean))];
+    const idolIds = [...new Set(allData.flatMap(d => d?.idol_ids ?? []).filter(Boolean))];
+    const globalModifierIds = [...new Set(allData.flatMap(d => d.physical_type_ids ?? []).filter(Boolean))];
+    const distributionTypesIds = [...new Set(allData.flatMap(d => d.distribution_type_id ?? []).filter(Boolean))];
 
-    const groupIds = [...new Set(allData.map(d => d?.primary_group_id).filter(Boolean))]
-    const idolIds = [...new Set(allData.flatMap(d => d?.idol_ids ?? []).filter(Boolean))]
+    const [{ data: groups }, { data: idols }, { data: modifiers }, { data: distributions }] = await Promise.all([
+        supabase.from(TABLES.GROUPS).select('id, name').in('id', groupIds),
+        supabase.from(TABLES.IDOLS).select('id, stage_name').in('id', idolIds),
+        supabase.from(TABLES.GLOBAL_CARDS_MODIFIERS).select('id, name').in('id', globalModifierIds),
+        supabase.from(TABLES.DISTRIBUTION_TYPES).select('id, name').in('id', distributionTypesIds)
+    ]);
 
-    // 3. Fetch group names
-    const { data: groups } = await supabase
-        .from(TABLES.GROUPS)
-        .select('id, name')
-        .in('id', groupIds)
-
-    // 4. Fetch idol names
-    const { data: idols } = await supabase
-        .from(TABLES.IDOLS)
-        .select('id, stage_name')
-        .in('id', idolIds)
-
-    // 5. Merge into submissions
-    const enriched = submissions.map(s => {
-        const data = s.data as unknown as PhotocardData
-
+    return submissions.map(s => {
+        const data = s.data as unknown as PhotocardData;
         return {
             ...s,
             data: {
                 ...data,
                 group_name: groups?.find(g => g.id === data.primary_group_id)?.name ?? null,
-                idol_names: (data.idol_ids ?? [])
-                    .map(id => idols?.find(i => i.id === id)?.stage_name)
-                    .filter((n): n is string => n !== undefined)
+                idol_names: (data.idol_ids ?? []).map(id => idols?.find(i => i.id === id)?.stage_name).filter((n): n is string => n !== undefined),
+                modifier_names: (data.physical_type_ids ?? []).map(id => modifiers?.find(m => m.id == id)?.name).filter((name): name is string => name !== undefined),
+                distribution_name: distributions?.find(d => d.id === data.distribution_type_id)?.name ?? null
             }
-        }
-    })
-
-    return enriched
+        };
+    });
 }
 
-export async function GetApprovedCard(): Promise<ListPhotocard[]> {
-    const supabase = await createClient()
+export async function getApprovedCards(): Promise<CleanPhotocard[]> {
+    const supabase = await createClient();
 
-    // 1. Get Data
-    const { data: PhotocardData, error } = await supabase
+    const { data, error } = await supabase
         .from(TABLES.PHOTOCARDS)
         .select(`
             *,
             groups(id, name),
-            photocards_idol(
-                idol:idols(id, stage_name)
-            ),
             releases(id, title),
-            distribution_types(id, name)
+            distribution_types(id, name),
+            photocards_idol(idol:idols(id, stage_name)),
+            photocards_modifiers_global(global_modifier:global_card_modifiers(id, name))
         `)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
-    if (error) throw error
+    if (error) handleQueryError(error, 'getting approved cards');
 
-    return PhotocardData
+    // Mapped cleanly!
+    return data.map(mapToCleanPhotocard);
 }
 
-export async function GetUserCollectionIds(userID: string) {
-    const supabase = await createClient()
+export async function getCardByID(id: string): Promise<CleanPhotocard | null> {
+    const supabase = await createClient();
 
-    const { data: collectionData, error } = await supabase
-        .from(TABLES.USER_COLLECTION)
-        .select(`card_id`)
-        .eq('user_id', userID)
-
-
-    if (error) {
-        console.log(`Error at getting user collections data for forms ${error}`)
-        throw new Error(`Error at getting user collections data for forms: ${error}`)
-    }
-
-    return collectionData.map(item => item.card_id) ?? []
-}
-
-export async function GetUserCollections(userID: string) {
-    const supabase = await createClient()
-
-    const { data: collectionData, error } = await supabase
-        .from(TABLES.USER_COLLECTION)
-        .select(`
-                *,
-                photocards(
-                    id,
-                    name,
-                    front_image_url,
-                    rarity,
-                    distribution_types(name),
-                    groups(name),
-                    releases(title),
-                    photocards_idol(
-                        idol:idols(id, stage_name)
-                    )
-                )
-            `)
-        .eq('user_id', userID)
-        .order('acquired_at', { ascending: false })
-
-    if (error) {
-        console.log(`Error at getting user collections data for forms ${error}`)
-        throw new Error(`Error at getting user collections data for forms: ${error}`)
-    }
-
-    return collectionData ?? []
-}
-
-export async function GetUserWishlistIds(userID: string) {
-    const supabase = await createClient()
-
-    const { data: wishlistData, error } = await supabase
-        .from(TABLES.USER_WISHLIST)
-        .select(`card_id`)
-        .eq('user_id', userID)
-
-    if (error) {
-        console.log(`Error at getting user collections data for forms ${error}`)
-        throw new Error(`Error at getting user collections data for forms: ${error}`)
-    }
-
-    return wishlistData.map(item => item.card_id) ?? []
-}
-
-export async function GetUserWishlist(userID: string) {
-    const supabase = await createClient()
-
-    const { data: wishlistData, error } = await supabase
-        .from(TABLES.USER_WISHLIST)
-        .select(`
-                *,
-                photocards(
-                    id,
-                    name,
-                    front_image_url,
-                    rarity,
-                    distribution_types(name),
-                    groups(name),
-                    releases(title),
-                    photocards_idol(
-                        idol:idols(id, stage_name)
-                    )
-                )
-            `)
-        .eq('user_id', userID)
-
-    if (error) {
-        console.log(`Error at getting user wishlist data ${error}`)
-        throw new Error(`Error at getting user wishlist data: ${error}`)
-    }
-
-    return wishlistData ?? []
-}
-
-export async function GetCardByID(id: string) {
-    const supabase = await createClient()
-
-    const { data: cardData, error } = await supabase
+    const { data, error } = await supabase
         .from(TABLES.PHOTOCARDS)
         .select(`
-                *,
-                groups(id, name, slug),
-                photocards_idol(
-                    idol:idols(id, stage_name, slug)
-                ),
-                releases(id, title),
-                distribution_types(id, name)
-            `)
+            *,
+            groups(id, name, slug),
+            releases(id, title),
+            distribution_types(id, name),
+            photocards_idol(idol:idols(id, stage_name, slug)),
+            photocards_modifiers_global(global_modifier:global_card_modifiers(id, name))
+        `)
         .eq('id', id)
-        .single()
+        .single();
 
-    if (error) {
-        console.log(`Error at getting card details data ${error}`)
-        throw new Error(`Error at getting card details data: ${error}`)
-    }
+    if (error) handleQueryError(error, 'getting card by ID');
 
-    return cardData
+    // Mapped cleanly!
+    return mapToCleanPhotocard(data);
+}
+
+export async function getUserCollectionIds(userID: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase.from(TABLES.USER_COLLECTION).select('card_id').eq('user_id', userID).is('deleted_at', null);
+    if (error) handleQueryError(error, 'getting user collection IDs');
+    return data.map(item => item.card_id) ?? [];
+}
+
+export async function getUserCollections(userID: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from(TABLES.USER_COLLECTION)
+        .select(`
+            *,
+            photocards(
+                *,
+                distribution_types(name),
+                groups(name),
+                releases(title),
+                photocards_idol(idol:idols(id, stage_name)),
+                photocards_modifiers_global(global_modifier:global_card_modifiers(id, name))
+            )
+        `)
+        .eq('user_id', userID)
+        .is('deleted_at', null)
+        .order('acquired_at', { ascending: false });
+
+    if (error) handleQueryError(error, 'getting user collections');
+
+    // We only clean the nested photocard object
+    return data.map(item => ({
+        ...item,
+        photocards: mapToCleanPhotocard(item.photocards)
+    })) ?? [];
+}
+
+export async function getUserWishlistIds(userID: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase.from(TABLES.USER_WISHLIST).select('card_id').eq('user_id', userID);
+    if (error) handleQueryError(error, 'getting user wishlist IDs');
+    return data.map(item => item.card_id) ?? [];
+}
+
+export async function getUserWishlist(userID: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from(TABLES.USER_WISHLIST)
+        .select(`
+            *,
+            photocards(
+                *,
+                distribution_types(name),
+                groups(name),
+                releases(title),
+                photocards_idol(idol:idols(id, stage_name)),
+                photocards_modifiers_global(global_modifier:global_card_modifiers(id, name))
+            )
+        `)
+        .eq('user_id', userID);
+
+    if (error) handleQueryError(error, 'getting user wishlist');
+
+    // We only clean the nested photocard object
+    return data.map(item => ({
+        ...item,
+        photocards: mapToCleanPhotocard(item.photocards)
+    })) ?? [];
 }
 
 export async function CheckCardOwning(userID: string, cardID: string) {

@@ -1,11 +1,7 @@
 import * as dotenv from 'dotenv'
 dotenv.config({ path: '.env.local' })
 
-import { createClient } from "@supabase/supabase-js";
-import { v2 as cloudinary } from 'cloudinary';
-
-const imageTypes = ['idols', 'groups']
-const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME
+import { createClient } from "@supabase/supabase-js"
 
 export function createAdminClient() {
     return createClient(
@@ -14,259 +10,194 @@ export function createAdminClient() {
     )
 }
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+/**
+ * Extracts the public_id from a Cloudinary URL
+ * 
+ * Example inputs:
+ * - https://res.cloudinary.com/dj30qrjfv/image/upload/v1774685681/Biasly/Photocards/ae52542c-78a0-43ba-a4ab-39cff1dba3b6/shin-yuna-bfxciC7f.jpg
+ * - https://res.cloudinary.com/dj30qrjfv/image/upload/Biasly/Photocards/group-id/card-name.jpg
+ * 
+ * Returns: "Biasly/Photocards/ae52542c-78a0-43ba-a4ab-39cff1dba3b6/shin-yuna-bfxciC7f"
+ */
+function extractPublicId(cloudinaryUrl: string): string | null {
+    if (!cloudinaryUrl || !cloudinaryUrl.includes('cloudinary.com')) {
+        return null
+    }
 
-async function uploadWithRetry(url: string, options: any, retries = 3) {
-    for (let i = 0; i < retries; i++) {
-        try {
-            return await cloudinary.uploader.upload(url, options)
-        } catch (err: any) {
-            const isRateLimit = err.http_code === 420 ||
-                (err.http_code === 400 && err.message?.includes('420'))
+    try {
+        // Cloudinary URL structure:
+        // https://res.cloudinary.com/{cloud_name}/image/upload/{version}/{public_id}.{extension}
+        // OR
+        // https://res.cloudinary.com/{cloud_name}/image/upload/{public_id}.{extension}
 
-            if (isRateLimit && i < retries - 1) {
-                const waitTime = (i + 1) * 2000
-                console.log(`⏳ Rate limited, retrying in ${(i + 1) * 2}s...`)
-                await sleep(waitTime)
-            } else {
-                throw err
-            }
+        const parts = cloudinaryUrl.split('/upload/')
+        if (parts.length !== 2) {
+            console.warn(`⚠️  Unexpected URL format: ${cloudinaryUrl}`)
+            return null
         }
+
+        let pathAfterUpload = parts[1]
+
+        // Remove version number if present (e.g., v1774685681/)
+        pathAfterUpload = pathAfterUpload.replace(/^v\d+\//, '')
+
+        // Remove file extension (e.g., .jpg, .png, .webp)
+        const publicId = pathAfterUpload.replace(/\.(jpg|jpeg|png|gif|webp|svg)$/i, '')
+
+        return publicId
+
+    } catch (error) {
+        console.error(`❌ Error parsing URL: ${cloudinaryUrl}`, error)
+        return null
     }
 }
 
-async function explicitWithRetry(publicId: string, retries = 3) {
-    for (let i = 0; i < retries; i++) {
-        try {
-            return await cloudinary.uploader.explicit(publicId, {
-                type: 'upload',
-                eager: [{ quality: 'auto', fetch_format: 'auto' }],
-                eager_async: false,
-                invalidate: true,
-            })
-        } catch (err: any) {
-            const isRateLimit = err.http_code === 420 ||
-                (err.http_code === 400 && err.message?.includes('420'))
-
-            if (isRateLimit && i < retries - 1) {
-                const waitTime = (i + 1) * 2000
-                console.log(`⏳ Rate limited, retrying in ${(i + 1) * 2}s...`)
-                await sleep(waitTime)
-            } else {
-                throw err
-            }
-        }
-    }
-}
-
-async function MigrateImage() {
-    console.log('🚀 MIGRATING IMAGES..........')
+async function MigratePhotocardUrls() {
+    console.log('🚀 MIGRATING PHOTOCARD IMAGE URLS TO PUBLIC_IDs...\n')
 
     const supabase = createAdminClient()
 
-    cloudinary.config({
-        cloud_name: CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-    })
+    let totalProcessed = 0
+    let totalUpdated = 0
+    let totalFailed = 0
+    const failed: { id: string, error: string }[] = []
 
-    for (const type of imageTypes) {
-        console.log(`\n📁 Migrating ${type}...`)
-        let totalMigrated = 0
-        let stillExist = true
-        const failed: string[] = []
+    let hasMore = true
+    let offset = 0
+    const batchSize = 100
 
-        while (stillExist) {
-            const { data, error } = await supabase
-                .from(type)
-                .select('id, slug, image_url, is_migrated, is_compressed')
-                .not('image_url', 'is', null)
-                .is('is_compressed', null)  // ✅ only fetch uncompressed ones
-                .limit(100)
+    while (hasMore) {
+        console.log(`\n📦 Fetching batch at offset ${offset}...`)
 
-            if (error) {
-                console.error("Error fetching data:", error)
-                throw error
-            }
-
-            if (data && data.length > 0) {
-                console.log(`Processing batch of ${data.length} ${type}...`)
-
-                for (const idol of data) {
-                    try {
-                        if (!idol.image_url) {
-                            console.log(`⏭️  Skipping ${idol.id} - no image_url`)
-                            continue
-                        }
-
-                        const filename = `${idol.slug}_${idol.id}`
-
-                        if (idol.is_migrated) {
-                            // ✅ Already on Cloudinary → use explicit to apply compression
-                            console.log(`🔄 Re-compressing: ${idol.image_url}`)
-                            await explicitWithRetry(idol.image_url)
-
-                            // Mark as compressed
-                            const { error: compressError } = await supabase
-                                .from(type)
-                                .update({ is_compressed: true })
-                                .eq('id', idol.id)
-
-                            if (compressError) {
-                                console.error("Error marking as compressed:", compressError)
-                                throw compressError
-                            }
-
-                        } else {
-                            // ✅ Not yet migrated → upload fresh with compression
-                            console.log(`⬆️  Uploading: ${filename}`)
-                            const result = await uploadWithRetry(idol.image_url, {
-                                public_id: filename,
-                                folder: `Biasly/${type.charAt(0).toUpperCase() + type.slice(1)}`,
-                                quality: 'auto',
-                                fetch_format: 'auto',
-                            })
-
-                            if (!result) throw new Error('Upload returned no result')
-
-                            // Update image_url, is_migrated and is_compressed all at once
-                            const { error: updateError } = await supabase
-                                .from(type)
-                                .update({
-                                    image_url: result.public_id,
-                                    is_migrated: true,
-                                    is_compressed: true  // ✅ mark compressed too
-                                })
-                                .eq('id', idol.id)
-
-                            if (updateError) {
-                                console.error("Error updating record:", updateError)
-                                throw updateError
-                            }
-                        }
-
-                        totalMigrated++
-                        console.log(`✅ Done: ${filename}`)
-                        await sleep(300)
-
-                    } catch (uploadFail) {
-                        console.error(`❌ Failed ${idol.id}:`, uploadFail)
-                        failed.push(idol.id)
-                        await sleep(1000)
-                    }
-                }
-
-                console.log(`⏳ Waiting before next batch...`)
-                await sleep(500)
-
-            } else {
-                console.log(`\n🎉 Done migrating ${type}!`)
-                console.log(`Total migrated: ${totalMigrated}`)
-                if (failed.length > 0) {
-                    console.log(`⚠️  Failed ids (${failed.length}):`, failed)
-                }
-                stillExist = false
-            }
-        }
-    }
-
-    console.log('\n✅ MIGRATION COMPLETE!')
-}
-
-async function MigrateLogoImage() {
-    console.log('🚀 MIGRATING LOGO IMAGES..........')
-    const groups = 'groups'
-
-    const supabase = createAdminClient()
-
-    cloudinary.config({
-        cloud_name: CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET,
-    })
-
-    console.log(`\n📁 Migrating ${groups}...`)
-    let totalMigrated = 0
-    let stillExist = true
-    const failed: string[] = []
-
-    while (stillExist) {
-        const { data, error } = await supabase
-            .from(groups)
-            .select('id, slug, logo_url')
-            .not('logo_url', 'is', null)
-            .is('is_logo_migrated', null)
-            .limit(100)
+        const { data: photocards, error } = await supabase
+            .from('photocards')
+            .select('id, name, front_image_url, back_image_url')
+            .or('front_image_url.ilike.%cloudinary.com%,back_image_url.ilike.%cloudinary.com%')
+            .range(offset, offset + batchSize - 1)
 
         if (error) {
-            console.error("Error fetching data:", error)
+            console.error("❌ Error fetching photocards:", error)
             throw error
         }
 
-        if (data && data.length > 0) {
-            console.log(`Processing batch of ${data.length} ${groups}...`)
+        if (!photocards || photocards.length === 0) {
+            console.log('\n✅ No more photocards to process!')
+            hasMore = false
+            break
+        }
 
-            for (const idol of data) {
-                try {
-                    if (!idol.logo_url) {
-                        console.log(`⏭️  Skipping ${idol.id} - no logo_url`)
-                        continue
+        console.log(`Processing ${photocards.length} photocards...`)
+
+        for (const card of photocards) {
+            try {
+                totalProcessed++
+
+                const updates: any = {}
+                let needsUpdate = false
+
+                // Process front_image_url
+                if (card.front_image_url && card.front_image_url.includes('cloudinary.com')) {
+                    const publicId = extractPublicId(card.front_image_url)
+                    
+                    if (publicId) {
+                        updates.front_image_url = publicId
+                        needsUpdate = true
+                        console.log(`  ✓ Front: ${publicId}`)
+                    } else {
+                        console.warn(`  ⚠️  Could not extract front public_id for: ${card.id}`)
                     }
+                }
 
-                    const filename = `${idol.slug}_${idol.id}`
+                // Process back_image_url
+                if (card.back_image_url && card.back_image_url.includes('cloudinary.com')) {
+                    const publicId = extractPublicId(card.back_image_url)
+                    
+                    if (publicId) {
+                        updates.back_image_url = publicId
+                        needsUpdate = true
+                        console.log(`  ✓ Back: ${publicId}`)
+                    } else {
+                        console.warn(`  ⚠️  Could not extract back public_id for: ${card.id}`)
+                    }
+                }
 
-                    // ✅ Not yet migrated → upload fresh with compression
-                    console.log(`⬆️  Uploading: ${filename}`)
-                    const result = await uploadWithRetry(idol.logo_url, {
-                        public_id: filename,
-                        folder: `Biasly/${groups.charAt(0).toUpperCase() + groups.slice(1)}/logos`,
-                        quality: 'auto',
-                        fetch_format: 'auto',
-                    })
-
-                    if (!result) throw new Error('Upload returned no result')
-
-                    // Update image_url, is_migrated and is_compressed all at once
+                // Update database if needed
+                if (needsUpdate) {
                     const { error: updateError } = await supabase
-                        .from(groups)
-                        .update({
-                            logo_url: result.public_id,
-                            is_logo_migrated: true
-                        })
-                        .eq('id', idol.id)
+                        .from('photocards')
+                        .update(updates)
+                        .eq('id', card.id)
 
                     if (updateError) {
-                        console.error("Error updating record:", updateError)
                         throw updateError
                     }
 
-                    totalMigrated++
-                    console.log(`✅ Done: ${filename}`)
-                    await sleep(300)
-
-                } catch (uploadFail) {
-                    console.error(`❌ Failed ${idol.id}:`, uploadFail)
-                    failed.push(idol.id)
-                    await sleep(1000)
+                    totalUpdated++
+                    console.log(`✅ Updated: ${card.name} (${card.id})`)
+                } else {
+                    console.log(`⏭️  Skipped: ${card.name} (${card.id}) - no Cloudinary URLs`)
                 }
-            }
 
-            console.log(`⏳ Waiting before next batch...`)
-            await sleep(500)
-
-        } else {
-            console.log(`\n🎉 Done migrating ${groups}!`)
-            console.log(`Total migrated: ${totalMigrated}`)
-            if (failed.length > 0) {
-                console.log(`⚠️  Failed ids (${failed.length}):`, failed)
+            } catch (err: any) {
+                totalFailed++
+                const errorMsg = err.message || String(err)
+                failed.push({ id: card.id, error: errorMsg })
+                console.error(`❌ Failed to process ${card.id}:`, errorMsg)
             }
-            stillExist = false
         }
+
+        offset += batchSize
+
+        // Small delay between batches
+        await new Promise(resolve => setTimeout(resolve, 500))
+    }
+
+    // Summary
+    console.log('\n' + '═'.repeat(60))
+    console.log('📊 MIGRATION SUMMARY')
+    console.log('═'.repeat(60))
+    console.log(`Total processed: ${totalProcessed}`)
+    console.log(`Successfully updated: ${totalUpdated}`)
+    console.log(`Failed: ${totalFailed}`)
+    
+    if (failed.length > 0) {
+        console.log('\n⚠️  Failed cards:')
+        failed.forEach(({ id, error }) => {
+            console.log(`  - ${id}: ${error}`)
+        })
     }
 
     console.log('\n✅ MIGRATION COMPLETE!')
 }
 
-MigrateLogoImage()
-    .then(() => console.log('\n🎉 All done!'))
-    .catch((err) => console.error('💥 Fatal error:', err))
+// Add a test function to verify the extraction logic
+function testExtraction() {
+    console.log('🧪 Testing public_id extraction...\n')
+
+    const testCases = [
+        'https://res.cloudinary.com/dj30qrjfv/image/upload/v1774685681/Biasly/Photocards/ae52542c-78a0-43ba-a4ab-39cff1dba3b6/shin-yuna-bfxciC7f.jpg',
+        'https://res.cloudinary.com/dj30qrjfv/image/upload/Biasly/Photocards/group-id/card-name.jpg',
+        'https://res.cloudinary.com/dj30qrjfv/image/upload/v1234567890/Biasly/Photocards/test-card.png',
+    ]
+
+    testCases.forEach(url => {
+        const publicId = extractPublicId(url)
+        console.log(`URL: ${url}`)
+        console.log(`Public ID: ${publicId}\n`)
+    })
+}
+
+// Run test first, then migrate
+// Uncomment to run tests:
+// testExtraction()
+
+// Run migration
+MigratePhotocardUrls()
+    .then(() => {
+        console.log('\n🎉 All done!')
+        process.exit(0)
+    })
+    .catch((err) => {
+        console.error('💥 Fatal error:', err)
+        process.exit(1)
+    })

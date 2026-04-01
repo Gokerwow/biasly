@@ -1,6 +1,6 @@
 import { getProfile } from '@/app/lib/userServer'
 import CardItem from '@/components/cards/cards'
-import { GetUserCollections } from '@/queries/photocards'
+import { getUserCollections } from '@/queries/photocards'
 import { SimpleIdol } from '@/types'
 import { Filter, Search, LayoutGrid, List } from 'lucide-react'
 
@@ -8,7 +8,7 @@ import { Filter, Search, LayoutGrid, List } from 'lucide-react'
 export default async function CollectionPage() {
     const profile = await getProfile()
 
-    const userCollections = profile ? await GetUserCollections(profile?.id) : []
+    const userCollections = profile ? await getUserCollections(profile?.id) : []
     const recentCollectedCard = userCollections.slice(0, 6)
 
     return (
@@ -52,15 +52,13 @@ export default async function CollectionPage() {
                         <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Groups</p>
                             <p className="font-mono text-2xl font-black text-pink-400 mt-1">
-                                {new Set(userCollections.map(c => c.photocards?.groups?.name).filter(Boolean)).size}
+                                {new Set(userCollections.map(c => c.photocards?.group?.name).filter(Boolean)).size}
                             </p>
                         </div>
                         <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-center">
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Idols</p>
                             <p className="font-mono text-2xl font-black text-purple-400 mt-1">
-                                {new Set(userCollections.flatMap(c =>
-                                    c.photocards?.photocards_idol.map(pi => pi.idol?.id) ?? []
-                                ).filter(Boolean)).size}
+                                {new Set(userCollections.flatMap(c => c.photocards?.idols.map(pi => pi.id) ?? []).filter(Boolean)).size}
                             </p>
                         </div>
                     </div>
@@ -125,17 +123,16 @@ export default async function CollectionPage() {
                     <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
                         {userCollections.map((card) => {
                             if (!card.photocards) return null
-                            const idols = card.photocards?.photocards_idol.map(i => i.idol)
 
                             return <CardItem
                                 key={card.id}
                                 id={card.photocards.id}
                                 front_image_url={card.photocards.front_image_url}
-                                group_name={card.photocards.groups?.name ?? 'No Group Name'}
+                                group_name={card.photocards.group?.name ?? 'No Group Name'}
                                 name={card.photocards.name}
                                 rarity={card.photocards.rarity ?? 'N'}
-                                idols={idols.filter((i) => i !== null) as SimpleIdol[]}
-                                distribution_type={card.photocards.distribution_types?.name}
+                                idols={card.photocards.idols}
+                                distribution_type={card.photocards.distribution_type?.name}
                                 release_title={card.photocards?.releases?.title}
                                 type='collection'
                             />

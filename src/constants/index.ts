@@ -42,7 +42,7 @@ export const ADMIN_ROUTES = [
     ROUTES.DASHBOARD.ANALYTICS,
     ROUTES.DASHBOARD.USERMGMT,
     ROUTES.DASHBOARD.REPORTS,
-]
+] as const
 
 export const GroupsCategories = {
     // GROUPS
@@ -103,7 +103,9 @@ export const IndividualCategories = {
 export const TABLES = {
     PHOTOCARDS: 'photocards',
     PHOTOCARDS_IDOL: 'photocards_idol',
-    PHOTOCARDS_CARD_MODIFIERS: 'photocards_card_modifiers',
+    GLOBAL_CARDS_MODIFIERS: 'global_card_modifiers',
+    LOCAL_COLLECTION_MODIFIERS: 'local_collection_modifiers',
+    PHOTOCARD_MODIFIERS_GLOBAL: 'photocards_modifiers_global',
     RELEASES: 'releases',
     RELEASES_IDOL: 'releases_idol',
     GROUPS: 'groups',

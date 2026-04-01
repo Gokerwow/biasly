@@ -3,7 +3,13 @@ import CardsPageClient from "./cardsPageClient";
 import { Tables } from "@/types/supabase";
 import { FilterProps } from "@/components/UI/filter";
 import { Enums } from "@/types/database.helper";
-import { GetApprovedCard } from "@/queries/photocards";
+import { getApprovedCards } from "@/queries/photocards";
+import BackButton from "@/components/UI/backButton";
+import Link from "next/link";
+import { ROUTES } from "@/constants";
+import { CheckCheck, Plus } from "lucide-react";
+import { Suspense } from "react";
+import { PrevCardSkeleton } from "@/components/cards/cardSkeleton";
 
 type SearchParams = {
     search?: string;
@@ -14,8 +20,10 @@ type SearchParams = {
     rarity?: string;
 };
 
-// Simple type for the groups state
-export type GroupOption = { id: string | null; name: string | null };
+async function CardDataFetcher() {
+    const cardsData = await getApprovedCards()
+    return <CardsPageClient initialCards={cardsData} />
+}
 
 export default async function CardsPage({
     searchParams,
@@ -24,9 +32,9 @@ export default async function CardsPage({
 }) {
     const params = await searchParams
 
-    const cardsData = await GetApprovedCard()
+    const cardsData = await getApprovedCards()
 
-    console.log(cardsData)
+    console.log("APPROVED CARDS: ", cardsData)
 
     // const currentPage = Number(params.page) || 1;
     // const itemsPerPage = 20;
@@ -80,14 +88,48 @@ export default async function CardsPage({
 
     // Pass to Client Component
     return (
-        <CardsPageClient
-            initialCards={cardsData}
-            // groups={groups}
-            // totalItems={totalItems}
-            // currentPage={currentPage}
-            // itemsPerPage={itemsPerPage}
-            // initialFilters={filters}
-            // initialSearch={params.search || ''}
-        />
+        <div className="flex flex-col gap-6 relative">
+            <div>
+                <BackButton label="Back to Dashboard" href="/dashboard" />
+            </div>
+
+            <div className="relative z-10 flex flex-col gap-8">
+                {/* Header */}
+                <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <h1 className="text-3xl font-black text-white tracking-tight uppercase italic">
+                            Master{' '}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 pr-2">
+                                Database
+                            </span>
+                        </h1>
+                        <p className="mt-2 text-gray-400 font-mono text-sm">
+                            Manage and organize the entire Biasly collection.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href={ROUTES.DASHBOARD.CARDS.APPROVE}
+                            className="group flex h-10 items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 px-4 text-sm font-bold text-purple-400 transition-all hover:bg-purple-500 hover:text-white"
+                        >
+                            <CheckCheck className="h-4 w-4" />
+                            <span className="hidden sm:inline">Approve Queue</span>
+                        </Link>
+                        <Link
+                            href={ROUTES.DASHBOARD.CARDS.CREATE}
+                            className="group flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-pink-600 to-pink-500 px-5 text-sm font-bold text-white shadow-lg shadow-pink-500/20 transition-all hover:scale-105 hover:shadow-pink-500/40"
+                        >
+                            <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />
+                            <span>Add Card</span>
+                        </Link>
+                    </div>
+                </div>
+
+                <Suspense fallback={<PrevCardSkeleton/>}>
+                    <CardDataFetcher/>
+                </Suspense>
+            </div>
+        </div>
     );
 }

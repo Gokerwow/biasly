@@ -1,15 +1,14 @@
 import { getProfile } from '@/app/lib/userServer'
 import CardItem from '@/components/cards/cards'
-import { GetUserWishlist } from '@/queries/photocards'
-import { SimpleIdol } from '@/types'
+import { getUserWishlist } from '@/queries/photocards'
 import { Heart, Flame, Users } from 'lucide-react'
 
 export default async function Wishlist() {
     const profile = (await getProfile())!
-    const wishlists = await GetUserWishlist(profile.id)
+    const wishlists = await getUserWishlist(profile.id)
 
     const highPriority = wishlists.filter(w => w.priority === 'high').length
-    const uniqueGroups = new Set(wishlists.map(w => w.photocards?.groups?.name).filter(Boolean)).size
+    const uniqueGroups = new Set(wishlists.map(w => w.photocards?.group?.name).filter(Boolean)).size
 
     return (
         <div className="flex flex-col gap-8 pb-10">
@@ -80,23 +79,20 @@ export default async function Wishlist() {
                     {wishlists.map((item) => {
                         if (!item.photocards) return null
 
-                        const idols = item.photocards.photocards_idol
-                            .map(pi => pi.idol)
-                            .filter((i) => i !== null) as SimpleIdol[]
-
                         return (
                             <div key={item.id} className="relative">
                                 <CardItem
                                     id={item.photocards.id}
                                     front_image_url={item.photocards.front_image_url}
-                                    group_name={item.photocards.groups?.name ?? null}
+                                    group_name={item.photocards.group?.name ?? null}
                                     name={item.photocards.name}
                                     rarity={item.photocards.rarity ?? 'N'}
-                                    distribution_type={item.photocards.distribution_types?.name}
-                                    idols={idols}
+                                    distribution_type={item.photocards.distribution_type?.name}
+                                    idols={item.photocards.idols}
                                     release_title={item.photocards.releases?.title}
                                     type='collection'
                                     priority={item.priority ?? 'high'}
+                                    wishlistId={item.id}
                                 />
                             </div>
                         )

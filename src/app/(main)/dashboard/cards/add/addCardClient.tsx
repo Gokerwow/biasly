@@ -7,7 +7,6 @@ import { useToast } from "@/app/providers/toastProvider"
 import CardItem from "@/components/cards/cards"
 import SearchableSelect from "@/components/UI/searchableSelect"
 import { ROUTES } from "@/constants"
-import { getCardTypes, getGroups, getIdolsByGroup, getPhysicalTypes, getReleasesByGroup } from "@/queries/photocards"
 import { CardRarity } from "@/types/database.helper"
 import { Book, IdCardLanyard, Layers, Save, Star, Tag, Upload, User, Users, X, FlipVertical, RotateCw } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -16,6 +15,11 @@ import { nanoid } from 'nanoid'
 import { useUser } from "@/app/providers/authProvider"
 import { ArtistType } from "@/types"
 import { Json } from "@/types/supabase"
+import { getGroups } from "@/queries/groups"
+import { getReleasesByGroup } from "@/queries/releases"
+import { getIdolsByGroup } from "@/queries/idols"
+import { getCardTypes } from "@/queries/distributionTypes"
+import { getPhysicalTypes } from "@/queries/physicalTypes"
 
 interface IdolDropdown {
     id: string

@@ -96,6 +96,7 @@ export default function CardItem({
                         src={getOptimizedImageUrl(front_image_url)}
                         alt={name}
                         fill
+                        loading="lazy"
                         className={`
                             object-cover transition-all duration-700 ease-in-out group-hover:scale-105
                             ${isImageReady ? 'opacity-100 blur-0' : 'opacity-0 blur-xl'}
@@ -193,6 +194,7 @@ export default function CardItem({
                         src={getOptimizedImageUrl(back_image_url)}
                         alt={name}
                         fill
+                        loading="lazy"
                         className={`
                             object-cover transition-all duration-700 ease-in-out group-hover:scale-105
                             ${isImageReady ? 'opacity-100 blur-0' : 'opacity-0 blur-xl'}

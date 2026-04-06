@@ -1,31 +1,38 @@
 'use client'
 
 import { getRarityBorder, getRarityText, getShadow } from '@/helper'
-import { Enums } from '@/types/database.helper'
+import { CardRarity } from '@/types/database.helper'
 import { Check, X, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Input } from './input'
-import { GroupOption } from '@/app/(main)/dashboard/cards/page'
-
-interface FilterMenuUIProps {
-    onClose: () => void
-    onConfirm: (filters: FilterProps) => void
-    currentFilters: FilterProps
-    groups: GroupOption[]
-}
+import { SimpleDistribution, SimpleGroup } from '@/types'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { CARD_RARITY } from '@/constants'
+import { updateParam } from '@/helper/params'
 
 export interface FilterProps {
     sort_by: string,
-    groups: string | null,
-    card_type: Enums<'card_type'>[],
-    rarity: Enums<'card_rarity'>[]
+    distribution_type: SimpleDistribution | null,
+    rarity: CardRarity[] | null
+    group: SimpleGroup | null
 }
 
-export default function FilterMenuUI({ onClose, onConfirm, currentFilters, groups }: FilterMenuUIProps) {
+interface FilterMenuUIProps {
+    onClose: () => void
+    currentFilters: FilterProps
+    groups: SimpleGroup[]
+    distributionTypes: SimpleDistribution[]
+}
+
+export default function FilterMenuUI({ onClose, currentFilters, groups, distributionTypes }: FilterMenuUIProps) {
+    const searchParams = useSearchParams()
+    const pathName = usePathname()
+    const router = useRouter()
+
     const [selectedSort, setSelectedSort] = useState(currentFilters.sort_by || 'newest');
-    const [selectedGroups, setSelectedGroups] = useState(currentFilters.groups || null);
-    const [selectedType, setSelectedType] = useState(currentFilters.card_type || []);
-    const [selectedRarity, setSelectedRarity] = useState(currentFilters.rarity || []);
+    const [selectedGroups, setSelectedGroups] = useState(currentFilters.group || null);
+    const [selectedDistType, setSelectedDistType] = useState(currentFilters.distribution_type || null);
+    const [selectedRarity, setSelectedRarity] = useState<CardRarity[]>(currentFilters.rarity || []);
     const [groupSearch, setGroupSearch] = useState('');
 
     // Filter the list locally based on what user types
@@ -35,58 +42,66 @@ export default function FilterMenuUI({ onClose, onConfirm, currentFilters, group
 
     const compRef = useRef<HTMLDivElement>(null)
 
-    console.log(groups)
-    console.log(selectedGroups)
-    
-    const cardType: Enums<'card_type'>[] = [
-        'Album PC',
-        'Broadcast',
-        'Lucky Draw',
-        'POB',
-        'Trading Card'
-    ]
+    // 1. Define the exact pairings allowed
+    type SelectAction =
+        | { type: 'rarity', item: CardRarity }
+        | { type: 'distributionType', item: SimpleDistribution };
 
-    const rarityOptions: Enums<'card_rarity'>[] = ['N', 'R', 'SR', 'SSR', 'UR'];
+    // 2. The function only takes one argument: the action object
+    const handleSelect = (action: SelectAction) => {
 
-    const handleSelect = (item: string, type: 'rarity' | 'cardType') => {
-        if (type === 'cardType') {
-            setSelectedType(prev => {
-                if (prev.includes(item)) {
-                    return prev.filter(i => i !== item);
-                } else {
-                    return [...prev, item];
-                }
-            });
-        } else {
+        if (action.type === 'rarity') {
             setSelectedRarity(prev => {
-                if (prev.includes(item)) {
-                    return prev.filter(i => i !== item);
+                if (prev.includes(action.item)) {
+                    return prev.filter(r => action.item != r)
                 } else {
-                    return [...prev, item];
+                    return [...prev, action.item]
                 }
-            });
+            })
+        }
+
+        if (action.type === 'distributionType') {
+            setSelectedDistType(action.item)
         }
     }
 
     const resetFilters = () => {
         setSelectedSort('')
-        setSelectedGroups('')
-        setSelectedType([])
+        setSelectedGroups(null)
+        setSelectedDistType(null)
         setSelectedRarity([])
     }
 
     const handleConfirm = () => {
-        onConfirm({
+        const params = new URLSearchParams(searchParams.toString())
+
+        const currentFilters = {
             sort_by: selectedSort,
-            groups: selectedGroups,
-            card_type: selectedType,
-            rarity: selectedRarity
-        })
-        onClose();
+            distribution_type: selectedDistType?.name,
+            rarity: selectedRarity,
+            group: selectedGroups?.name
+        }
+
+        Object.entries(currentFilters).forEach(([Key, value]) => {
+            if (Array.isArray(value)) {
+                updateParam(params, Key, value.join(','))
+            } else {
+                updateParam(params, Key, value)
+            }
+        });
+
+        const paramString = params.toString()
+        const url = paramString ? `${pathName}?${paramString}` : pathName
+
+        router.push(url, { scroll: false })
     }
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
+            const target = event.target as Element;
+            if (target.closest('#filter-toggle-btn')) {
+                return;
+            }
             if (compRef.current && !compRef.current.contains(event?.target as Node)) {
                 onClose();
             }
@@ -99,8 +114,8 @@ export default function FilterMenuUI({ onClose, onConfirm, currentFilters, group
     })
 
     useEffect(() => {
-        console.log(selectedType)
-    }, [selectedType])
+        console.log(selectedDistType)
+    }, [selectedDistType])
 
     return (
         <div ref={compRef} className="absolute top-full right-0 mt-2 w-80 rounded-2xl border border-white/10 bg-[#0d1117]/95 backdrop-blur-xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
@@ -143,7 +158,7 @@ export default function FilterMenuUI({ onClose, onConfirm, currentFilters, group
                     <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Member</h4>
                     <div className="max-h-32 overflow-y-auto flex flex-wrap gap-2">
                         {filteredGroups.map((item) =>
-                            <button onClick={() => setSelectedGroups(item.id)} key={item.id} className={`cursor-pointer rounded-full border ${selectedGroups === item.id ? 'border-purple-500 bg-purple-500 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'border-white/10 bg-black/20 text-gray-400 hover:border-white/20 hover:text-white'} px-3 py-1.5 text-xs font-medium transition-all`}>
+                            <button onClick={() => setSelectedGroups(item)} key={item.id} className={`cursor-pointer rounded-full border ${selectedGroups?.id === item.id ? 'border-purple-500 bg-purple-500 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'border-white/10 bg-black/20 text-gray-400 hover:border-white/20 hover:text-white'} px-3 py-1.5 text-xs font-medium transition-all`}>
                                 {item.name}
                             </button>
                         )}
@@ -158,15 +173,15 @@ export default function FilterMenuUI({ onClose, onConfirm, currentFilters, group
                 <section>
                     <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Rarity</h4>
                     <div className="flex flex-wrap gap-2">
-                        {rarityOptions.map((item) => {
-                            const isSelected = selectedRarity.includes(item);
+                        {CARD_RARITY.map((item) => {
+                            const isSelected = selectedRarity?.includes(item);
                             const borderStyle = getRarityBorder(item)
                             const textStyle = getRarityText(item)
                             const shadowStyle = getShadow(item)
                             return (
                                 <button
                                     key={item}
-                                    onClick={() => handleSelect(item, 'rarity')}
+                                    onClick={() => handleSelect({ type: 'rarity', item: item })}
                                     className={`
                                         relative cursor-pointer overflow-hidden rounded-lg border px-3 py-1.5 text-xs font-bold transition-all
                                         ${isSelected
@@ -185,11 +200,11 @@ export default function FilterMenuUI({ onClose, onConfirm, currentFilters, group
                 <section>
                     <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Card Type</h4>
                     <div className="space-y-1">
-                        {cardType.map((item) =>
-                            <label onClick={() => handleSelect(item, 'cardType')} key={item} className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-white/5 group">
-                                <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{item}</span>
-                                <div className={`h-5 w-5 rounded border transition-colors ${selectedType.includes(item) ? 'flex items-center justify-center border-pink-500 bg-pink-500 text-white' : ' border-white/20 bg-transparent group-hover:border-white/40 '}`}>
-                                    {selectedType.includes(item) && <Check className="h-3 w-3" />}
+                        {distributionTypes.map((item) =>
+                            <label onClick={() => handleSelect({ type: 'distributionType', item: item })} key={item.id} className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-white/5 group">
+                                <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{item.name}</span>
+                                <div className={`h-5 w-5 rounded border transition-colors ${selectedDistType?.id === item.id ? 'flex items-center justify-center border-pink-500 bg-pink-500 text-white' : ' border-white/20 bg-transparent group-hover:border-white/40 '}`}>
+                                    {selectedDistType?.id === item.id && <Check className="h-3 w-3" />}
                                 </div>
                             </label>
                         )}

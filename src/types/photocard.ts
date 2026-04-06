@@ -16,6 +16,13 @@ export type CleanPhotocard = Photocard & {
     releases: SimpleRelease
 }
 
+export type SimplePhotocard = {
+    id: string
+    name: string
+    front_image_url: string
+    back_image_url?: string
+}
+
 // photocard data for list view with all relations joined
 export type ListPhotocard = Photocard & {
     groups: SimpleGroup | null

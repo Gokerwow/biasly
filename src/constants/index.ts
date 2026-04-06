@@ -1,3 +1,5 @@
+import { CardRarity } from "@/types";
+
 export const BaseFandomURL = 'https://kpop.fandom.com/api.php';
 
 const withDashboard = (path = '') => `/dashboard${path}`
@@ -142,3 +144,5 @@ export const priorityConfig: Record<'high' | 'medium' | 'low', string> = {
     medium: 'bg-gradient-to-r from-amber-500 to-orange-400 shadow-amber-500/50',
     low: 'bg-gradient-to-r from-gray-600 to-gray-500 shadow-gray-500/30',
 }
+
+export const CARD_RARITY: readonly CardRarity[] = ['N', 'R', 'SR', 'SSR', 'UR'] as const;

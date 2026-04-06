@@ -26,6 +26,7 @@ export default function FlipImage({ name, frontImageUrl, backImageUrl }: { name:
                             src={frontImageUrl}
                             alt={name}
                             fill
+                            loading="lazy"
                             className="object-cover"
                             priority
                         />
@@ -42,6 +43,7 @@ export default function FlipImage({ name, frontImageUrl, backImageUrl }: { name:
                                 src={backImageUrl}
                                 alt={`${name} back`}
                                 fill
+                                loading="lazy"
                                 className="object-cover"
                             />
                         ) : (

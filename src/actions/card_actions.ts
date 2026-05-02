@@ -5,6 +5,7 @@ import { ActionResponse, CardReviewPayload } from "@/types"
 import { CardStatus, wishlistPriority } from "@/types/database.helper"
 import { Json } from "@/types/supabase"
 import { createClient } from "@/utils/supabase/server"
+import { revalidatePath } from "next/cache"
 
 interface AddCardPayload {
     submitted_by: string,
@@ -241,6 +242,43 @@ export async function RemoveCardFromCollection(userID: string, cardID: string): 
         return { success: true }
     } catch (error) {
         console.error('Error at removing card from user collection', error)
+        return { success: false, error: error as Error }
+    }
+}
+
+export async function MarkCard(collectionID: string, type: 'sale' | 'trade', pathName: string) {
+    const supabase = await createClient()
+
+    try {
+        let error;
+
+        if (type == 'sale') {
+            const { error: saleError } = await supabase
+                .from(TABLES.USER_COLLECTION)
+                .update({ is_for_sale: true })
+                .eq('id', collectionID)
+
+            error = saleError
+        } else {
+            const { error: tradeError } = await supabase
+                .from(TABLES.USER_COLLECTION)
+                .update({ is_for_trade: true })
+                .eq('id', collectionID)
+
+            error = tradeError
+        }
+
+        if (error) {
+            console.error('Error at marking card from user collection', error)
+            return { success: false, error: error as Error }
+        }
+
+        revalidatePath(pathName)
+
+        return { success: true }
+
+    } catch (error) {
+        console.error('Error at marking card from user collection', error)
         return { success: false, error: error as Error }
     }
 }

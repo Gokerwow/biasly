@@ -9,6 +9,8 @@ import { toSlug } from '@/helper/slug'
 
 export default async function CollectionPage({ searchParams }: { searchParams: SearchParams }) {
     const params = await searchParams
+    const query = params.search
+
     const currentPage = Array.isArray(params.page) ? params.page[0] : params.page
     const rawGroupParam = Array.isArray(params.groups) ? params.groups : params.groups ? params.groups?.split(',') : []
     const rawSortParam = Array.isArray(params.sort_by) ? params.sort_by[0] : params.sort_by || ''

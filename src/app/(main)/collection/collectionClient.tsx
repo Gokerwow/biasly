@@ -8,6 +8,12 @@ import Pagination from '@/components/UI/pagination'
 import { Profile, SimpleDistribution, SimpleGroup, SimpleIdol, SimpleRelease } from '@/types'
 import { FilterProps } from '@/components/UI/filter'
 import CollectionFilterMenu from '@/components/collections/collectionsFilter'
+import { MarkCard } from '@/actions/card_actions'
+import { useToast } from '@/app/providers/toastProvider'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useDebounce } from '@/app/providers/debounce'
+import { updateParam } from '@/helper/params'
+import { Button } from '@/components/UI/button'
 
 export interface Pagination {
     total: number
@@ -39,8 +45,36 @@ export default function CollectionPageClient({
     pagination: Pagination
 }) {
 
+    const pathName = usePathname()
+    const searchParams = useSearchParams()
+    const router = useRouter()
+
     // State management
     const [searchQuery, setSearchQuery] = useState('')
+    const debouncedQuery = useDebounce(searchQuery, 500)
+    const { showToast } = useToast()
+
+    const handleToggleMark = async (collectionID: string, type: 'sale' | 'trade') => {
+        const response = await MarkCard(collectionID, type, pathName)
+
+        if (response.error) {
+            console.error("Error at toggling marking :", response.error)
+            showToast(`Failed marking cards to ${type}`, 'error')
+            return
+        }
+
+        showToast(`Successfully marking cards to ${type}`, 'success')
+    }
+
+    useEffect(() => {
+        const params = new URLSearchParams(searchParams)
+        updateParam(params, 'search', debouncedQuery)
+        updateParam(params, 'page', '1')
+
+        const queryString = params.toString()
+        const url = queryString ? `${pathName}?${queryString}` : pathName
+        router.push(url, { scroll: false })
+    }, [debouncedQuery])
 
     // // Toggle release filter
     // const toggleRelease = (release: string) => {
@@ -143,44 +177,14 @@ export default function CollectionPageClient({
                                     <X className="h-4 w-4" />
                                 </button>
                             )}
-                        </div>
-                        <div className="flex gap-2 justify-between sm:justify-end">
-                            {/* Mobile filter button */}
-                            {/* <button
-                                onClick={() => setShowMobileFilters(!showMobileFilters)}
-                                className="lg:hidden flex items-center gap-2 rounded-lg bg-[#161B22] border border-gray-800 px-4 py-2 text-white hover:bg-gray-800 transition-colors"
-                            >
-                                <Filter className="h-4 w-4" />
-                                <span className="text-sm font-medium">Filters</span>
-                                {hasActiveFilters && (
-                                    <span className="bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        {selectedGroups.length}
-                                    </span>
-                                )}
-                            </button> */}
 
-                            {/* View mode toggles */}
-                            {/* <div className="flex gap-2">
-                                <button
-                                    onClick={() => setViewMode('grid')}
-                                    className={`rounded-lg p-2 transition-colors ${viewMode === 'grid'
-                                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
-                                        : 'bg-[#161B22] text-gray-500 hover:bg-gray-800 hover:text-white'
-                                        }`}
-                                >
-                                    <LayoutGrid className="h-5 w-5" />
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('list')}
-                                    className={`rounded-lg p-2 transition-colors ${viewMode === 'list'
-                                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
-                                        : 'bg-[#161B22] text-gray-500 hover:bg-gray-800 hover:text-white'
-                                        }`}
-                                >
-                                    <List className="h-5 w-5" />
-                                </button>
-                            </div> */}
                         </div>
+                        <Button
+                            variant='default'
+                            onClick={() => console.log("click")}
+                        >
+                            <span>Export</span>
+                        </Button>
                     </div>
 
                     {/* Active filters display */}
@@ -228,25 +232,29 @@ export default function CollectionPageClient({
                     {/* Cards Grid */}
                     {userCollections.length > 0 ? (
                         <div className={`grid gap-4 grid-cols-2 xl:grid-cols-4`}>
-                            {userCollections.map((card) => {
-                                if (!card.photocards) return null
+                            {userCollections.map((collection) => {
+                                if (!collection.photocards) return null
 
                                 return <CardItem
                                     asLink
-                                    key={card.id}
-                                    id={card.photocards.id}
-                                    front_image_url={card.photocards.front_image_url}
-                                    back_image_url={card.photocards.back_image_url}
-                                    group_name={card.photocards.group?.name ?? 'No Group Name'}
-                                    name={card.photocards.name}
-                                    rarity={card.photocards.rarity ?? 'N'}
-                                    idols={card.photocards.idols}
-                                    distribution_type={card.photocards.distribution_type?.name}
-                                    physical_types={card.photocards.physical_types_global}
-                                    release_title={card.photocards?.releases?.title}
+                                    key={collection.id}
+                                    id={collection.photocards.id}
+                                    front_image_url={collection.photocards.front_image_url}
+                                    back_image_url={collection.photocards.back_image_url}
+                                    group_name={collection.photocards.group?.name ?? 'No Group Name'}
+                                    name={collection.photocards.name}
+                                    rarity={collection.photocards.rarity ?? 'N'}
+                                    idols={collection.photocards.idols}
+                                    distribution_type={collection.photocards.distribution_type?.name}
+                                    physical_types={collection.photocards.physical_types_global}
+                                    release_title={collection.photocards?.releases?.title}
                                     type='collection'
-                                    isDoubleSided={card.photocards.is_double_sided ?? false}
-                                    isHorizontal={card.photocards.is_horizontal ?? false}
+                                    isDoubleSided={collection.photocards.is_double_sided ?? false}
+                                    isHorizontal={collection.photocards.is_horizontal ?? false}
+                                    isForSale={collection.is_for_sale ?? false}
+                                    isForTrade={collection.is_for_trade ?? false}
+                                    onToggleSale={() => handleToggleMark(collection.id, 'sale')}
+                                    onToggleTrade={() => handleToggleMark(collection.id, 'trade')}
                                 />
                             })}
                         </div>

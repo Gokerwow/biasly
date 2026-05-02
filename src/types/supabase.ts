@@ -915,6 +915,8 @@ export type Database = {
           created_at: string | null
           deleted_at: string | null
           id: string
+          is_for_sale: boolean | null
+          is_for_trade: boolean | null
           is_verified: boolean | null
           notes: string | null
           user_id: string
@@ -932,6 +934,8 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           id?: string
+          is_for_sale?: boolean | null
+          is_for_trade?: boolean | null
           is_verified?: boolean | null
           notes?: string | null
           user_id: string
@@ -949,6 +953,8 @@ export type Database = {
           created_at?: string | null
           deleted_at?: string | null
           id?: string
+          is_for_sale?: boolean | null
+          is_for_trade?: boolean | null
           is_verified?: boolean | null
           notes?: string | null
           user_id?: string

@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Check, Eye, Repeat, User } from 'lucide-react'
+import { Check, Eye, Repeat, User, DollarSign, ArrowLeftRight } from 'lucide-react'
 import { CardRarity } from '@/types/database.helper'
 import { SimpleIdol } from '@/types'
 import { CardActionBar } from './cardActionBar'
@@ -37,6 +37,12 @@ interface CardProps {
     isInWishlist?: boolean
     isInCollection?: boolean
 
+    // Trade & Sale status
+    isForSale?: boolean
+    isForTrade?: boolean
+    onToggleSale?: () => void
+    onToggleTrade?: () => void
+
     // Admin mode
     isSelected?: boolean
     onSelect?: () => void
@@ -64,6 +70,10 @@ export default function CardItem({
     type = 'browse',
     isInWishlist,
     isInCollection,
+    isForSale = false,
+    isForTrade = false,
+    onToggleSale,
+    onToggleTrade,
     isSelected = false,
     onSelect,
     onInspect,
@@ -74,11 +84,24 @@ export default function CardItem({
     const rc = rarityConfig[rarity] ?? rarityConfig['N']
     const idolNames = idols.map(i => i.stage_name?.replace(/\(.*?\)/g, '')).join(' · ') || null
     const isAdminMode = !!(onSelect || onInspect || submittedBy)
+    const showTradeControls = type === 'collection' && (onToggleSale || onToggleTrade)
 
     const handleFlip = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation()
         e.preventDefault()
         setShowFront(!showFront)
+    }
+
+    const handleSaleToggle = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation()
+        e.preventDefault()
+        onToggleSale?.()
+    }
+
+    const handleTradeToggle = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation()
+        e.preventDefault()
+        onToggleTrade?.()
     }
 
     // ── IMAGE BLOCK ────────────────────────────────────────
@@ -87,6 +110,24 @@ export default function CardItem({
 
             {priority && wishlistId && (
                 <PriorityRibbon priority={priority} wishlistId={wishlistId} />
+            )}
+
+            {/* Sale/Trade Status Badges - bottom left corner */}
+            {(isForSale || isForTrade) && (
+                <div className="absolute bottom-2.5 left-2.5 z-20 flex flex-col gap-1">
+                    {isForSale && (
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/90 border border-emerald-400 backdrop-blur-sm shadow-lg">
+                            <DollarSign className="h-3 w-3 text-white" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-white">Sale</span>
+                        </div>
+                    )}
+                    {isForTrade && (
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/90 border border-blue-400 backdrop-blur-sm shadow-lg">
+                            <ArrowLeftRight className="h-3 w-3 text-white" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-white">Trade</span>
+                        </div>
+                    )}
+                </div>
             )}
 
             {/* Image */}
@@ -122,7 +163,6 @@ export default function CardItem({
                         opacity-0 group-hover:opacity-100 transition-all duration-200
                         hover:bg-white hover:text-black hover:scale-110 shadow-lg
                     "
-                // title={isFlipped ? "Show front" : "Show back"}
                 >
                     <Repeat className="h-4 w-4" />
                 </button>
@@ -167,7 +207,49 @@ export default function CardItem({
                 </button>
             )}
 
-            {/* Hover Action Bar — bottom of image, browse mode only */}
+            {/* Collection Mode: Trade/Sale Controls — bottom of image */}
+            {showTradeControls && (
+                <div className="absolute bottom-0 left-0 right-0 z-30 p-2.5 bg-gradient-to-t from-black/80 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <div className="flex items-center justify-center gap-2">
+                        {onToggleSale && (
+                            <button
+                                onClick={handleSaleToggle}
+                                className={`
+                                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs
+                                    border transition-all duration-200 shadow-lg
+                                    ${isForSale
+                                        ? 'bg-emerald-500 border-emerald-400 text-white hover:bg-emerald-600'
+                                        : 'bg-black/60 border-white/30 text-white hover:bg-emerald-500 hover:border-emerald-400'
+                                    }
+                                `}
+                                title={isForSale ? "Remove from sale" : "Mark for sale"}
+                            >
+                                <DollarSign className="h-3.5 w-3.5" />
+                                <span>{isForSale ? 'For Sale' : 'Sale'}</span>
+                            </button>
+                        )}
+                        {onToggleTrade && (
+                            <button
+                                onClick={handleTradeToggle}
+                                className={`
+                                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs
+                                    border transition-all duration-200 shadow-lg
+                                    ${isForTrade
+                                        ? 'bg-blue-500 border-blue-400 text-white hover:bg-blue-600'
+                                        : 'bg-black/60 border-white/30 text-white hover:bg-blue-500 hover:border-blue-400'
+                                    }
+                                `}
+                                title={isForTrade ? "Remove from trade" : "Mark for trade"}
+                            >
+                                <ArrowLeftRight className="h-3.5 w-3.5" />
+                                <span>{isForTrade ? 'For Trade' : 'Trade'}</span>
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Browse Mode: Hover Action Bar — bottom of image */}
             {!isAdminMode && type === 'browse' && (
                 <CardActionBar
                     cardID={id}
@@ -180,12 +262,31 @@ export default function CardItem({
             <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-20 mix-blend-overlay" />
         </div>
     )
-    // ── IMAGE BLOCK ────────────────────────────────────────
+    
+    // ── IMAGE BLOCK (BACK) ────────────────────────────────────────
     const backImageBlock = (
         <div className={`absolute inset-0 overflow-hidden rounded-2xl`} style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', WebkitBackfaceVisibility: 'hidden' }}>
 
             {priority && wishlistId && (
                 <PriorityRibbon priority={priority} wishlistId={wishlistId} />
+            )}
+
+            {/* Sale/Trade Status Badges - bottom left corner */}
+            {(isForSale || isForTrade) && (
+                <div className="absolute bottom-2.5 left-2.5 z-20 flex flex-col gap-1">
+                    {isForSale && (
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/90 border border-emerald-400 backdrop-blur-sm shadow-lg">
+                            <DollarSign className="h-3 w-3 text-white" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-white">Sale</span>
+                        </div>
+                    )}
+                    {isForTrade && (
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/90 border border-blue-400 backdrop-blur-sm shadow-lg">
+                            <ArrowLeftRight className="h-3 w-3 text-white" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-white">Trade</span>
+                        </div>
+                    )}
+                </div>
             )}
 
             {/* Image */}
@@ -266,7 +367,49 @@ export default function CardItem({
                 </button>
             )}
 
-            {/* Hover Action Bar — bottom of image, browse mode only */}
+            {/* Collection Mode: Trade/Sale Controls — bottom of image */}
+            {showTradeControls && (
+                <div className="absolute bottom-0 left-0 right-0 z-30 p-2.5 bg-gradient-to-t from-black/80 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <div className="flex items-center justify-center gap-2">
+                        {onToggleSale && (
+                            <button
+                                onClick={handleSaleToggle}
+                                className={`
+                                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs
+                                    border transition-all duration-200 shadow-lg
+                                    ${isForSale
+                                        ? 'bg-emerald-500 border-emerald-400 text-white hover:bg-emerald-600'
+                                        : 'bg-black/60 border-white/30 text-white hover:bg-emerald-500 hover:border-emerald-400'
+                                    }
+                                `}
+                                title={isForSale ? "Remove from sale" : "Mark for sale"}
+                            >
+                                <DollarSign className="h-3.5 w-3.5" />
+                                <span>{isForSale ? 'For Sale' : 'Sale'}</span>
+                            </button>
+                        )}
+                        {onToggleTrade && (
+                            <button
+                                onClick={handleTradeToggle}
+                                className={`
+                                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs
+                                    border transition-all duration-200 shadow-lg
+                                    ${isForTrade
+                                        ? 'bg-blue-500 border-blue-400 text-white hover:bg-blue-600'
+                                        : 'bg-black/60 border-white/30 text-white hover:bg-blue-500 hover:border-blue-400'
+                                    }
+                                `}
+                                title={isForTrade ? "Remove from trade" : "Mark for trade"}
+                            >
+                                <ArrowLeftRight className="h-3.5 w-3.5" />
+                                <span>{isForTrade ? 'For Trade' : 'Trade'}</span>
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Browse Mode: Hover Action Bar — bottom of image */}
             {!isAdminMode && type === 'browse' && (
                 <CardActionBar
                     cardID={id}

@@ -3,7 +3,7 @@ import { CleanPhotocard, SimplePhotocard } from "./photocard"
 
 export interface SimpleRelease {
     id: string
-    title: string | null
+    title: string
 }
 
 export type BrowseRelease = {

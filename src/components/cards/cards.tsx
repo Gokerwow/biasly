@@ -97,8 +97,9 @@ export default function CardItem({
                         alt={name}
                         fill
                         loading="lazy"
+                        draggable={false}
                         className={`
-                            object-cover transition-all duration-700 ease-in-out group-hover:scale-105
+                            object-cover transition-all duration-700 ease-in-out select-none group-hover:scale-105
                             ${isImageReady ? 'opacity-100 blur-0' : 'opacity-0 blur-xl'}
                         `}
                         onLoad={() => setIsImageReady(true)}
@@ -195,8 +196,9 @@ export default function CardItem({
                         alt={name}
                         fill
                         loading="lazy"
+                        draggable={false}
                         className={`
-                            object-cover transition-all duration-700 ease-in-out group-hover:scale-105
+                            object-cover transition-all duration-700 ease-in-out select-none group-hover:scale-105
                             ${isImageReady ? 'opacity-100 blur-0' : 'opacity-0 blur-xl'}
                         `}
                         onLoad={() => setIsImageReady(true)}

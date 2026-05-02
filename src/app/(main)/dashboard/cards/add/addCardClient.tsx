@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { AddCard, UploadImageToCloudinary } from "@/actions/card_actions"
+import { AddCard } from "@/actions/card_actions"
 import { useDebounce } from "@/app/providers/debounce"
 import { useToast } from "@/app/providers/toastProvider"
 import CardItem from "@/components/cards/cards"
@@ -20,6 +20,7 @@ import { getReleasesByGroup } from "@/queries/releases"
 import { getIdolsByGroup } from "@/queries/idols"
 import { getCardTypes } from "@/queries/distributionTypes"
 import { getPhysicalTypes } from "@/queries/physicalTypes"
+import { UploadImageToCloudinary } from "@/actions/image_actions"
 
 interface IdolDropdown {
     id: string

@@ -5,41 +5,11 @@ import { ActionResponse, CardReviewPayload } from "@/types"
 import { CardStatus, wishlistPriority } from "@/types/database.helper"
 import { Json } from "@/types/supabase"
 import { createClient } from "@/utils/supabase/server"
-import { v2 as cloudinary } from "cloudinary"
-
-cloudinary.config({
-    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 interface AddCardPayload {
     submitted_by: string,
     data: Json,
     status: CardStatus
-}
-
-// Self expolainable
-export async function UploadImageToCloudinary(formData: FormData, filename: string): Promise<ActionResponse<{ url: string }>> {
-    try {
-        const file = formData.get('file') as File
-        const buffer = Buffer.from(await file.arrayBuffer())
-
-        const base64 = `data:${file.type};base64,${buffer.toString('base64')}`
-
-        const result = await cloudinary.uploader.upload(base64, {
-            public_id: filename,
-            folder: 'Biasly/Photocards',
-            quality: 'auto',
-            fetch_format: 'auto',
-        })
-
-        return { success: true, data: { url: result.public_id } }
-
-    } catch (error) {
-        console.error('Error at uploading image to cloudinary', error)
-        return { success: false, error: error as Error }
-    }
 }
 
 // add card to the submissions table

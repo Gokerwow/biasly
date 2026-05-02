@@ -5,16 +5,28 @@ import { CardRarity } from '@/types/database.helper'
 import { Check, X, RotateCcw } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Input } from './input'
-import { SimpleDistribution, SimpleGroup } from '@/types'
+import { SimpleDistribution, SimpleGroup, SimpleIdol } from '@/types'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { CARD_RARITY } from '@/constants'
 import { updateParam } from '@/helper/params'
+import { SimpleRelease } from '@/types/release'
 
 export interface FilterProps {
     sort_by: string,
     distribution_type: SimpleDistribution | null,
     rarity: CardRarity[] | null
-    group: SimpleGroup | null
+    groups: SimpleGroup[] | null
+    idols?: SimpleIdol[] | null
+    releases?: SimpleRelease[] | null
+}
+
+export interface FetchFilterProps {
+    sort_by: string,
+    distribution_type_id: string | null,
+    raritys: string[] | null
+    groups_ids: string[] | null
+    idols_ids?: string[] | null
+    releases_ids?: string[] | null
 }
 
 interface FilterMenuUIProps {
@@ -30,7 +42,7 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
     const router = useRouter()
 
     const [selectedSort, setSelectedSort] = useState(currentFilters.sort_by || 'newest');
-    const [selectedGroups, setSelectedGroups] = useState(currentFilters.group || null);
+    const [selectedGroups, setSelectedGroups] = useState(currentFilters.groups || []);
     const [selectedDistType, setSelectedDistType] = useState(currentFilters.distribution_type || null);
     const [selectedRarity, setSelectedRarity] = useState<CardRarity[]>(currentFilters.rarity || []);
     const [groupSearch, setGroupSearch] = useState('');
@@ -45,7 +57,8 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
     // 1. Define the exact pairings allowed
     type SelectAction =
         | { type: 'rarity', item: CardRarity }
-        | { type: 'distributionType', item: SimpleDistribution };
+        | { type: 'distributionType', item: SimpleDistribution }
+        | { type: 'groups', item: SimpleGroup }
 
     // 2. The function only takes one argument: the action object
     const handleSelect = (action: SelectAction) => {
@@ -60,6 +73,17 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
             })
         }
 
+        if (action.type === 'groups') {
+            setSelectedGroups(prev => {
+                const exists = prev.some(g => g.id === action.item.id);
+                if (exists) {
+                    return prev.filter(r => r.id !== action.item.id)
+                } else {
+                    return [...prev, action.item]
+                }
+            })
+        }
+
         if (action.type === 'distributionType') {
             setSelectedDistType(action.item)
         }
@@ -67,7 +91,7 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
 
     const resetFilters = () => {
         setSelectedSort('')
-        setSelectedGroups(null)
+        setSelectedGroups([])
         setSelectedDistType(null)
         setSelectedRarity([])
     }
@@ -77,17 +101,13 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
 
         const currentFilters = {
             sort_by: selectedSort,
-            distribution_type: selectedDistType?.name,
+            distribution_type: selectedDistType?.id,
             rarity: selectedRarity,
-            group: selectedGroups?.name
+            groups: selectedGroups?.map(g => g.id)
         }
 
-        Object.entries(currentFilters).forEach(([Key, value]) => {
-            if (Array.isArray(value)) {
-                updateParam(params, Key, value.join(','))
-            } else {
-                updateParam(params, Key, value)
-            }
+        Object.entries(currentFilters).forEach(([key, value]) => {
+            updateParam(params, key, value)
         });
 
         const paramString = params.toString()
@@ -118,7 +138,7 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
     }, [selectedDistType])
 
     return (
-        <div ref={compRef} className="absolute top-full right-0 mt-2 w-80 rounded-2xl border border-white/10 bg-[#0d1117]/95 backdrop-blur-xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+        <div ref={compRef} className="absolute top-full right-0 mt-2 w-72 rounded-2xl border border-white/10 bg-[#0d1117]/95 backdrop-blur-xl shadow-2xl z-[99] animate-in fade-in zoom-in-95 duration-200">
 
             <div className="flex items-center justify-between border-b border-white/5 p-4">
                 <h3 className="font-bold text-white">Filters & Sort</h3>
@@ -127,7 +147,7 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
                 </button>
             </div>
 
-            <div className="max-h-[60vh] overflow-y-auto p-4 space-y-6">
+            <div className="max-h-[45vh] overflow-y-auto p-3 space-y-4">
 
                 {/* -- SORT SECTION (Grid Buttons) -- */}
                 <section>
@@ -155,21 +175,26 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
                     isSearch={true}
                 />
                 <section>
-                    <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Member</h4>
-                    <div className="max-h-32 overflow-y-auto flex flex-wrap gap-2">
+                    <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Groups</h4>
+                    <div className="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5">
                         {filteredGroups.map((item) =>
-                            <button onClick={() => setSelectedGroups(item)} key={item.id} className={`cursor-pointer rounded-full border ${selectedGroups?.id === item.id ? 'border-purple-500 bg-purple-500 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'border-white/10 bg-black/20 text-gray-400 hover:border-white/20 hover:text-white'} px-3 py-1.5 text-xs font-medium transition-all`}>
+                            <button
+                                onClick={() => handleSelect({ type: 'groups', item: item })}
+                                key={item.id}
+                                className={`cursor-pointer rounded-lg border text-xs font-medium px-2 py-1.5 transition-all
+                    ${selectedGroups?.some(g => g.id === item.id)
+                                        ? 'border-purple-500 bg-purple-500 text-white'
+                                        : 'border-white/10 bg-black/20 text-gray-400 hover:border-white/20'
+                                    }`}
+                            >
                                 {item.name}
                             </button>
                         )}
-                        {filteredGroups.length === 0 && (
-                            <span className="text-xs text-gray-500">No group found</span>
-                        )}
-
                     </div>
                 </section>
 
-                {/* 👈 4. NEW RARITY SECTION (Using Pills style for compactness) */}
+
+                {/* 4. RARITY SECTION (Using Pills style for compactness) */}
                 <section>
                     <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Rarity</h4>
                     <div className="flex flex-wrap gap-2">
@@ -198,15 +223,24 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
 
                 {/* -- CARD TYPE SECTION -- */}
                 <section>
-                    <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Card Type</h4>
-                    <div className="space-y-1">
+                    <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Card Type</h4>
+                    <div className="grid grid-cols-2 gap-1.5">
                         {distributionTypes.map((item) =>
-                            <label onClick={() => handleSelect({ type: 'distributionType', item: item })} key={item.id} className="flex cursor-pointer items-center justify-between rounded-lg px-2 py-2 hover:bg-white/5 group">
-                                <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{item.name}</span>
-                                <div className={`h-5 w-5 rounded border transition-colors ${selectedDistType?.id === item.id ? 'flex items-center justify-center border-pink-500 bg-pink-500 text-white' : ' border-white/20 bg-transparent group-hover:border-white/40 '}`}>
-                                    {selectedDistType?.id === item.id && <Check className="h-3 w-3" />}
+                            <button
+                                onClick={() => handleSelect({ type: 'distributionType', item: item })}
+                                key={item.id}
+                                className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-all
+                    ${selectedDistType?.id === item.id
+                                        ? 'bg-pink-500/20 border border-pink-500/50 text-pink-400'
+                                        : 'bg-white/5 border border-white/5 text-gray-400 hover:bg-white/10'
+                                    }`}
+                            >
+                                <div className={`h-3.5 w-3.5 rounded border flex items-center justify-center flex-shrink-0
+                    ${selectedDistType?.id === item.id ? 'border-pink-500 bg-pink-500' : 'border-white/20'}`}>
+                                    {selectedDistType?.id === item.id && <Check className="h-2.5 w-2.5 text-white" />}
                                 </div>
-                            </label>
+                                <span className="truncate">{item.name}</span>
+                            </button>
                         )}
                     </div>
                 </section>

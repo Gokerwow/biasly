@@ -5,6 +5,10 @@ import { mapToCleanPhotocard } from "@/helper/cleanPhotocard";
 import { handleQueryError } from "@/helper/errorHandling";
 import { CleanPhotocard, PhotocardData } from "@/types";
 import { createClient } from "@/utils/supabase/server";
+import { paginatedQuery, PaginationResult } from "./paginatedQuery";
+import { FetchFilterProps } from "@/components/UI/filter";
+import { applyGenericFilters, FilterRule } from "./appylyFilters";
+import { FullWishlists } from "@/types/userWishlists";
 
 export async function getSubmissionsData() {
     const supabase = await createClient();
@@ -46,25 +50,31 @@ export async function getSubmissionsData() {
     });
 }
 
-export async function getApprovedCards(): Promise<CleanPhotocard[]> {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase
-        .from(TABLES.PHOTOCARDS)
-        .select(`
+export async function getApprovedCards(page: number = 1, pageSize: number = 10, filters?: FilterRule[]): Promise<PaginationResult<CleanPhotocard>> {
+    const SELECT_QUERY = `
             *,
             groups(id, name),
             releases(id, title),
             distribution_types(id, name),
             photocards_idol(idol:idols(id, stage_name)),
             photocards_modifiers_global(global_modifier:global_card_modifiers(id, name))
-        `)
-        .order('created_at', { ascending: false });
+        `
 
-    if (error) handleQueryError(error, 'getting approved cards');
+    const results = await paginatedQuery(
+        TABLES.PHOTOCARDS,
+        { page, pageSize },
+        SELECT_QUERY,
+        q => applyGenericFilters(q, filters)
+    )
 
-    // Mapped cleanly!
-    return data.map(mapToCleanPhotocard);
+    const { data, ...rest } = results
+    console.log("DATA CARDS: ", results)
+
+
+    return {
+        ...rest,
+        data: data.map(mapToCleanPhotocard)
+    }
 }
 
 export async function getCardByID(id: string): Promise<CleanPhotocard | null> {
@@ -89,41 +99,6 @@ export async function getCardByID(id: string): Promise<CleanPhotocard | null> {
     return mapToCleanPhotocard(data);
 }
 
-export async function getUserCollectionIds(userID: string) {
-    const supabase = await createClient();
-    const { data, error } = await supabase.from(TABLES.USER_COLLECTION).select('card_id').eq('user_id', userID).is('deleted_at', null);
-    if (error) handleQueryError(error, 'getting user collection IDs');
-    return data.map(item => item.card_id) ?? [];
-}
-
-export async function getUserCollections(userID: string) {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-        .from(TABLES.USER_COLLECTION)
-        .select(`
-            *,
-            photocards(
-                *,
-                distribution_types(name),
-                groups(name),
-                releases(title),
-                photocards_idol(idol:idols(id, stage_name)),
-                photocards_modifiers_global(global_modifier:global_card_modifiers(id, name))
-            )
-        `)
-        .eq('user_id', userID)
-        .is('deleted_at', null)
-        .order('acquired_at', { ascending: false });
-
-    if (error) handleQueryError(error, 'getting user collections');
-
-    // We only clean the nested photocard object
-    return data.map(item => ({
-        ...item,
-        photocards: mapToCleanPhotocard(item.photocards)
-    })) ?? [];
-}
-
 export async function getUserWishlistIds(userID: string) {
     const supabase = await createClient();
     const { data, error } = await supabase.from(TABLES.USER_WISHLIST).select('card_id').eq('user_id', userID);
@@ -131,11 +106,8 @@ export async function getUserWishlistIds(userID: string) {
     return data.map(item => item.card_id) ?? [];
 }
 
-export async function getUserWishlist(userID: string) {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-        .from(TABLES.USER_WISHLIST)
-        .select(`
+export async function getUserWishlist(userID: string, page: number = 1, pageSize: number = 10) {
+    const SELECT_QUERY = `
             *,
             photocards(
                 *,
@@ -145,16 +117,24 @@ export async function getUserWishlist(userID: string) {
                 photocards_idol(idol:idols(id, stage_name)),
                 photocards_modifiers_global(global_modifier:global_card_modifiers(id, name))
             )
-        `)
-        .eq('user_id', userID);
+        `
 
-    if (error) handleQueryError(error, 'getting user wishlist');
+    const results = await paginatedQuery<'user_wishlist', FullWishlists>(
+        TABLES.USER_WISHLIST,
+        { page, pageSize },
+        SELECT_QUERY,
+        q => q.eq('user_id', userID)
+    )
 
-    // We only clean the nested photocard object
-    return data.map(item => ({
-        ...item,
-        photocards: mapToCleanPhotocard(item.photocards)
-    })) ?? [];
+    const { data, ...rest } = results
+
+    return {
+        ...rest,
+        data: data.map(item => ({
+            ...item,
+            photocards: mapToCleanPhotocard(item.photocards)
+        }))
+    }
 }
 
 export async function CheckCardOwning(userID: string, cardID: string) {

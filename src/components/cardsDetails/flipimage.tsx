@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { motion } from 'framer-motion'
 import Image from "next/image"
+import { getOptimizedImageUrl } from "@/helper/cloudinary"
 
 export default function FlipImage({ name, frontImageUrl, backImageUrl }: { name: string, frontImageUrl: string, backImageUrl: string }) {
     const [isFlipped, setIsFlipped] = useState(false)
@@ -20,31 +21,36 @@ export default function FlipImage({ name, frontImageUrl, backImageUrl }: { name:
                     className="relative w-full aspect-[2/3]"
                 >
                     {/* Front */}
-                    <div className="absolute inset-0 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl"
+                    <div className="absolute inset-0 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl select-none"
                         style={{ backfaceVisibility: 'hidden' }}>
                         <Image
-                            src={frontImageUrl}
+                            src={getOptimizedImageUrl(frontImageUrl, {
+                                width: 1000
+                            })}
                             alt={name}
                             fill
-                            loading="lazy"
                             className="object-cover"
                             priority
+                            draggable={false}
                         />
                         <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none" />
                     </div>
 
                     {/* Back */}
                     <div
-                        className="absolute inset-0 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl"
+                        className="absolute inset-0 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl select-none"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                     >
                         {backImageUrl ? (
                             <Image
-                                src={backImageUrl}
+                                src={getOptimizedImageUrl(backImageUrl, {
+                                    width: 1000
+                                })}
                                 alt={`${name} back`}
                                 fill
                                 loading="lazy"
                                 className="object-cover"
+                                draggable={false}
                             />
                         ) : (
                             <div className="w-full h-full bg-[#161B22] flex items-center justify-center">

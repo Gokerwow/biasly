@@ -12,9 +12,7 @@ export function getOptimizedImageUrl(originalUrl: string | null | undefined, opt
         return originalUrl;
     }
 
-    // 1. FIX THE ENV VARIABLE TRAP
-    // Client components can ONLY read vars starting with NEXT_PUBLIC_
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dj30qrjfv'; // Put your actual cloud name here as a fail-safe
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dj30qrjfv';
     const baseUrl = `https://res.cloudinary.com/${cloudName}/image/upload`;
 
     let transforms = 'f_auto,q_auto';

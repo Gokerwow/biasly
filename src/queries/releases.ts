@@ -4,7 +4,8 @@ import { paginatedQuery } from "./paginatedQuery";
 import { TABLES } from "@/constants";
 import { createClient } from "@/utils/supabase/server";
 import { handleQueryError } from "@/helper/errorHandling";
-import { FilterProps } from "@/components/UI/filter";
+import { FetchFilterProps, FilterProps } from "@/components/UI/filter";
+import { applyGenericFilters, FilterRule, SortRule } from "./appylyFilters";
 
 export async function getReleasesByGroup(groupID: string, search?: string) {
     const supabase = await createClient();
@@ -32,107 +33,54 @@ export async function getReleasesWithCards(
     search?: string,
     page: number = 1,
     pageSize: number = 10,
-    filters?: FilterProps
+    filters: FilterRule[] = [],
+    sort?: SortRule
 ) {
     const supabase = await createClient()
 
     try {
-
         const SELECT_QUERY = `
+            *,
+            groups(id, name),
+            photocards!inner(
                 *,
-                groups(id, name),
-                photocards!inner(
-                    *,
-                    photocards_idol(
-                        idol:idols(id, stage_name)
-                    ),
-                    distribution_types(id, name),
-                    photocards_modifiers_global(
-                        global_modifier:global_card_modifiers(id, name)
-                    )
+                photocards_idol(
+                    idol:idols(id, stage_name)
+                ),
+                distribution_types(id, name),
+                photocards_modifiers_global(
+                    global_modifier:global_card_modifiers(id, name)
                 )
-            `
-            
-        let searchIds: string[] | null = null
+            )
+        `
+        
+        // 1. We clone the filters array so we don't mutate the original
+        const finalRules = [...filters]
 
+        // 2. Handle the RPC Search Logic
         if (search) {
             const { data: scoutResults, error: scoutError } = await supabase
                 .rpc('search_browse_releases', { search_query: search })
 
-            if (scoutError) {
-                handleQueryError(scoutError, `Error searching releases: ${search}`)
-            }
+            if (scoutError) handleQueryError(scoutError, `Error searching releases: ${search}`)
 
-            searchIds = scoutResults?.map(s => s.id) ?? []
+            const searchIds = scoutResults?.map(s => s.id) ?? []
 
             if (searchIds.length === 0) {
-                return {
-                    data: [],
-                    total: 0,
-                    page,
-                    pageSize,
-                    totalPages: 0,
-                    hasNextPage: false,
-                    hasPreviousPage: false
-                }
+                // Return empty if search yields nothing
+                return { data: [], total: 0, page, pageSize, totalPages: 0, hasNextPage: false, hasPreviousPage: false }
             }
+
+            // Append the search IDs as a standard FilterRule!
+            finalRules.push({ column: 'id', operator: 'in', value: searchIds })
         }
 
-        const applyFilters = (query: any) => {
-            let q = query
-
-            // Apply search filter
-            if (searchIds) {
-                q = q.in('id', searchIds)
-            }
-
-            // Apply group filter
-            if (filters?.group) {
-                q = q.eq('group_id', filters.group.id)
-            }
-
-            // Apply rarity filter
-            if (filters?.rarity && filters.rarity.length > 0) {
-                q = q.in('photocards.rarity', filters.rarity)
-            }
-
-            // Apply distribution filter
-            if (filters?.distribution_type) {
-                q = q.eq('photocards.distribution_type_id', filters.distribution_type.id)
-            }
-
-            // Apply sorting
-            const sortBy = filters?.sort_by ?? 'newest'
-            switch (sortBy) {
-                case 'newest':
-                    q = q.order('created_at', { ascending: false })
-                    break
-                case 'oldest':
-                    q = q.order('created_at', { ascending: true })
-                    break
-                case 'name':
-                    q = q.order('title', { ascending: true })
-                    break
-                // case 'popular':
-                //     q = q.order('view_count', { ascending: false, nullsFirst: false })
-                //     break
-                default:
-                    q = q.order('created_at', { ascending: false })
-            }
-
-            q = q.order('created_at', {
-                referencedTable: 'photocards',
-                ascending: false
-            })
-
-            return q
-        }
-
+        // 3. Pass everything into the generic paginated query
         const results = await paginatedQuery(
             TABLES.RELEASES,
             { page, pageSize },
             SELECT_QUERY,
-            applyFilters
+            (q) => applyGenericFilters(q, finalRules, sort)
         )
 
         return {

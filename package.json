@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "scrape:main": "tsx scripts/main/main.ts",
-    "update-types": "npx supabase gen types typescript --project-id kzcucrksqzdypkmlviex --schema public > src/types/supabase.ts",
+    "update-types": "npx -y supabase gen types typescript --project-id kzcucrksqzdypkmlviex --schema public > src/types/supabase.ts",
     "seed": "npx tsx --env-file=.env.local scripts/seed/seed.ts",
     "migrate": "npx tsx --env-file=.env.local scripts/migrate/index.ts"
   },

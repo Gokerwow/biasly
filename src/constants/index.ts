@@ -31,7 +31,8 @@ export const ROUTES = {
     },
     BINDER: {
         INDEX: '/binder',
-        DETAIL: '/binder/detail/:id',
+        TEMPLATES: '/binder/templates',
+        DETAIL: '/binder/:id',
         CREATE: '/binder/create'
     }
 }
@@ -120,6 +121,9 @@ export const TABLES = {
     BINDERS: 'binders',
     BINDER_PAGES: 'binder_pages',
     BINDER_CARDS: 'binder_cards',
+    TEMPLATES: 'templates',
+    TEMPLATE_PAGES: 'template_pages',
+    TEMPLATE_SLOTS: 'template_slots',
     PROFILES: 'profiles',
     BAN_LOGS: 'ban_logs',
     BAN_APPEALS: 'ban_appeals',
@@ -146,3 +150,14 @@ export const priorityConfig: Record<'high' | 'medium' | 'low', string> = {
 }
 
 export const CARD_RARITY: readonly CardRarity[] = ['N', 'R', 'SR', 'SSR', 'UR'] as const;
+
+export const COLOR_THEMES = [
+    { id: 'pink', name: 'Bubblegum', gradient: 'from-pink-500', color: '#ec4899' },
+    { id: 'purple', name: 'Lavender', gradient: 'from-purple-600', color: '#9333ea' },
+    { id: 'blue', name: 'Ocean', gradient: 'from-blue-500', color: '#3b82f6' },
+    { id: 'emerald', name: 'Mint', gradient: 'from-emerald-500', color: '#10b981' },
+    { id: 'amber', name: 'Honey', gradient: 'from-amber-500', color: '#f59e0b' },
+    { id: 'rose', name: 'Rose', gradient: 'from-rose-500', color: '#f43f5e' },
+    { id: 'cyan', name: 'Sky', gradient: 'from-cyan-500', color: '#06b6d4' },
+    { id: 'violet', name: 'Grape', gradient: 'from-violet-600', color: '#7c3aed' },
+]

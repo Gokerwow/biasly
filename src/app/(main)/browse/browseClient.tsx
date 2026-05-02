@@ -76,7 +76,7 @@ export function BrowseClient({
         const params = new URLSearchParams(searchParams)
         if (debouncedQuery) {
             params.set('search', debouncedQuery.trim())
-            params.delete('page') // Reset to page 1 on new search
+            params.delete('page')
         } else {
             params.delete('search')
         }

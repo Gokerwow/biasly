@@ -5,8 +5,8 @@ import { UserProvider } from "./providers/authProvider";
 import NextTopLoader from 'nextjs-toploader';
 import ModalProvider from "./providers/modalProvider";
 import { getProfile } from "./lib/userServer";
-import ToastProvider from "./providers/toastProvider";
-import 'react-toastify/dist/ReactToastify.css';
+;import ToastProvider from "./providers/toastProvider";
+import 'react-toastify/dist/ReactToastify.css'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

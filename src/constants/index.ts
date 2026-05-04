@@ -23,7 +23,9 @@ export const ROUTES = {
     },
     BROWSE: {
         INDEX: '/browse',
-        DETAIL: '/browse/detail/:id'
+        RELEASES: '/browse/releases',
+        GROUPS: '/browse/groups',
+        IDOLS: '/browse/idols'
     },
     WISHLIST: {
         INDEX: '/wishlist',

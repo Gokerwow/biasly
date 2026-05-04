@@ -8,7 +8,7 @@ import Pagination from "@/components/UI/pagination"
 import { getOptimizedImageUrl } from "@/helper/cloudinary"
 import { SimpleDistribution, SimpleGroup } from "@/types"
 import { BrowseFeaturedRelease, BrowseRelease } from "@/types/release"
-import { ChevronRight, Compass, Sparkles, Search, Filter } from "lucide-react"
+import { ChevronRight, Sparkles, Search, Filter } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -31,7 +31,7 @@ interface BrowseClientProps {
 
 const ITEMS_PER_PAGE = 10
 
-export function BrowseClient({
+export function ReleasesClient({
     bannerImage,
     featuredRelease,
     releaseWithCards,
@@ -92,14 +92,13 @@ export function BrowseClient({
     return (
         <div className="flex flex-col gap-10 relative">
 
-            {/* --- 1. HEADER & SEARCH --- */}
-            <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div>
-                    <h1 className="flex items-center gap-3 text-4xl font-black text-white italic tracking-tighter">
-                        <Compass className="h-10 w-10 text-pink-500" />
+            {/* --- SEARCH & FILTER BAR --- */}
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                    <h2 className="text-3xl font-black text-white italic tracking-tighter mb-1">
                         BROWSE RELEASES
-                    </h1>
-                    <p className="text-gray-400 mt-1">Explore the latest drops and complete your eras.</p>
+                    </h2>
+                    <p className="text-gray-400 text-sm">Explore the latest drops and complete your eras.</p>
                 </div>
 
                 <div className="relative flex items-center gap-3">
@@ -112,7 +111,11 @@ export function BrowseClient({
                             onChange={(e) => setQuery(e.target.value)}
                         />
                     </div>
-                    <button id="filter-toggle-btn" onClick={() => setFilterOpen(!filterOpen)} className="flex items-center gap-2 rounded-xl border border-gray-800 bg-[#161B22] px-4 py-2 text-sm font-bold text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
+                    <button 
+                        id="filter-toggle-btn" 
+                        onClick={() => setFilterOpen(!filterOpen)} 
+                        className="flex items-center gap-2 rounded-xl border border-gray-800 bg-[#161B22] px-4 py-2 text-sm font-bold text-gray-400 hover:text-white hover:bg-gray-800 transition-all"
+                    >
                         <Filter className="h-4 w-4" />
                         Filters
                     </button>
@@ -125,11 +128,10 @@ export function BrowseClient({
                             onClose={() => setFilterOpen(!filterOpen)}
                         />
                     }
-
                 </div>
-            </header>
+            </div>
 
-            {/* --- 2. FEATURED DROP (HERO) --- */}
+            {/* --- FEATURED DROP (HERO) --- */}
             <section className="group animate-border relative h-64 w-full overflow-hidden rounded-[2.5rem] border border-pink-500/20 shadow-2xl transition-all duration-500 hover:border-pink-500/40">
 
                 {/* Background image — right side fading left */}
@@ -171,7 +173,7 @@ export function BrowseClient({
                 </div>
             </section>
 
-            {/* --- 3. RESULTS OR EMPTY STATE --- */}
+            {/* --- RESULTS OR EMPTY STATE --- */}
             {!hasResults ? (
                 <div className="flex flex-col items-center justify-center py-20 px-4">
                     <div className="relative mb-6">

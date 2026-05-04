@@ -13,12 +13,13 @@ import {
     Compass
 } from 'lucide-react'
 import Image from 'next/image'
+import { ROUTES } from '@/constants'
 
 const MENU_ITEMS = [
-    { name: 'Dashboard', icon: Home, href: '/dashboard' },
-    { name: 'My Collection', icon: Grid, href: '/collection' },
-    { name: 'Browse', icon: Compass, href: '/browse' },
-    { name: 'Wishlist', icon: Heart, href: '/wishlist' },
+    { name: 'Dashboard', icon: Home, href: ROUTES.DASHBOARD.INDEX },
+    { name: 'My Collection', icon: Grid, href: ROUTES.COLLECTION.INDEX },
+    { name: 'Browse', icon: Compass, href: ROUTES.BROWSE.RELEASES },
+    { name: 'Wishlist', icon: Heart, href: ROUTES.WISHLIST.INDEX },
 ]
 
 export default function Sidebar() {

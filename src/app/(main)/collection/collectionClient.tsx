@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import CardItem from '@/components/cards/cards'
 import { Filter, Search, LayoutGrid, List, X } from 'lucide-react'
 import { FullUserCollections } from '@/types/user_collections'
@@ -14,6 +14,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebounce } from '@/app/providers/debounce'
 import { updateParam } from '@/helper/params'
 import { Button } from '@/components/UI/button'
+import { WteExportTemplate } from '@/components/template/WteExportTemplate'
+import { toPng } from 'html-to-image';
 
 export interface Pagination {
     total: number
@@ -49,6 +51,8 @@ export default function CollectionPageClient({
     const searchParams = useSearchParams()
     const router = useRouter()
 
+    const ref = useRef<HTMLDivElement>(null)
+
     // State management
     const [searchQuery, setSearchQuery] = useState('')
     const debouncedQuery = useDebounce(searchQuery, 500)
@@ -75,6 +79,23 @@ export default function CollectionPageClient({
         const url = queryString ? `${pathName}?${queryString}` : pathName
         router.push(url, { scroll: false })
     }, [debouncedQuery])
+
+    const handleExport = useCallback(() => {
+        if (ref.current === null) {
+            return
+        }
+
+        toPng(ref.current, { cacheBust: true })
+            .then((dataUrl) => {
+                const link = document.createElement('a')
+                link.download = 'export_collection.png'
+                link.href = dataUrl
+                link.click()
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }, [ref])
 
     // // Toggle release filter
     // const toggleRelease = (release: string) => {
@@ -181,7 +202,7 @@ export default function CollectionPageClient({
                         </div>
                         <Button
                             variant='default'
-                            onClick={() => console.log("click")}
+                            onClick={() => handleExport()}
                         >
                             <span>Export</span>
                         </Button>
@@ -290,6 +311,15 @@ export default function CollectionPageClient({
 
             </div>
 
+            <div className="absolute top-0 -left-[9999px]">
+                <WteExportTemplate
+                    ref={ref}
+                    exportType='trade'
+                    profile={profile}
+                    userCollections={userCollections.filter(c => c.is_for_trade === true)}
+                    format='feed'
+                />
+            </div>
         </div>
     )
 }

@@ -44,7 +44,7 @@ export function CardSidebar({ userColletions, userWishlists, cardsData, currentF
     const [isFilterOpen, setIsFilterOpen] = useState(false)
 
     const collectionsData = userColletions.data
-    const wishlistData = userWishlists
+    const wishlistData = userWishlists.data
     const cards = cardsData.data
     const exceptBinderCards = cards.filter(c => !(binderCards.find(b => b.photocard_id === c.id)))
     const totalItems = exceptBinderCards.length

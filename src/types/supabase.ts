@@ -336,6 +336,13 @@ export type Database = {
             foreignKeyName: "groups_parent_group_id_fkey"
             columns: ["parent_group_id"]
             isOneToOne: false
+            referencedRelation: "group_with_member_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_parent_group_id_fkey"
+            columns: ["parent_group_id"]
+            isOneToOne: false
             referencedRelation: "groups"
             referencedColumns: ["id"]
           },
@@ -366,6 +373,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "active_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_groups_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "group_with_member_counts"
             referencedColumns: ["id"]
           },
           {
@@ -568,6 +582,13 @@ export type Database = {
             foreignKeyName: "photocards_primary_group_id_fkey"
             columns: ["primary_group_id"]
             isOneToOne: false
+            referencedRelation: "group_with_member_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photocards_primary_group_id_fkey"
+            columns: ["primary_group_id"]
+            isOneToOne: false
             referencedRelation: "groups"
             referencedColumns: ["id"]
           },
@@ -732,6 +753,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "active_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "releases_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "group_with_member_counts"
             referencedColumns: ["id"]
           },
           {
@@ -1044,6 +1072,14 @@ export type Database = {
       active_groups: {
         Row: {
           id: string | null
+          name: string | null
+        }
+        Relationships: []
+      }
+      group_with_member_counts: {
+        Row: {
+          id: string | null
+          member_count: number | null
           name: string | null
         }
         Relationships: []

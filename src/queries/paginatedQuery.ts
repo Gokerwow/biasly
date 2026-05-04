@@ -3,6 +3,17 @@ import { handleQueryError } from "@/helper/errorHandling"
 import { Database } from "@/types/supabase"
 import { createClient } from "@/utils/supabase/server"
 
+type PublicSchema = Database['public'];
+type TableOrViewName = keyof PublicSchema['Tables'] | keyof PublicSchema['Views'];
+
+// Helper to extract the Row type from either Tables or Views
+type GetRow<T extends TableOrViewName> =
+    T extends keyof PublicSchema['Tables']
+    ? PublicSchema['Tables'][T]['Row']
+    : T extends keyof PublicSchema['Views']
+    ? PublicSchema['Views'][T]['Row']
+    : never;
+
 interface PaginationParams {
     page: number
     pageSize: number
@@ -19,8 +30,8 @@ export interface PaginationResult<T> {
 }
 
 export async function paginatedQuery<
-    TTable extends keyof Database['public']['Tables'],
-    TData = Database['public']['Tables'][TTable]['Row']
+    TTable extends TableOrViewName,
+    TData = GetRow<TTable>
 >(
     tableName: TTable,
     params: PaginationParams,
@@ -33,7 +44,7 @@ export async function paginatedQuery<
     const to = from + params.pageSize - 1
 
     let query = supabase
-        .from(tableName)
+        .from(tableName as any)
         .select(selectQuery, { count: 'exact' })
         .range(from, to)
 

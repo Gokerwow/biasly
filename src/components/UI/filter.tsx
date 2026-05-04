@@ -32,11 +32,12 @@ export interface FetchFilterProps {
 interface FilterMenuUIProps {
     onClose: () => void
     currentFilters: FilterProps
-    groups: SimpleGroup[]
+    groups?: SimpleGroup[]
     distributionTypes: SimpleDistribution[]
+    hideGroupFilter?: boolean
 }
 
-export default function FilterMenuUI({ onClose, currentFilters, groups, distributionTypes }: FilterMenuUIProps) {
+export default function FilterMenuUI({ onClose, currentFilters, groups, distributionTypes, hideGroupFilter }: FilterMenuUIProps) {
     const searchParams = useSearchParams()
     const pathName = usePathname()
     const router = useRouter()
@@ -48,7 +49,7 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
     const [groupSearch, setGroupSearch] = useState('');
 
     // Filter the list locally based on what user types
-    const filteredGroups = groups.filter(g =>
+    const filteredGroups = groups?.filter(g =>
         g.name.toLowerCase().includes(groupSearch.toLowerCase())
     );
 
@@ -168,30 +169,35 @@ export default function FilterMenuUI({ onClose, currentFilters, groups, distribu
                 </section>
 
                 {/* -- GROUPS SECTION (Pills) -- */}
-                <Input
-                    name='group'
-                    placeholder='Find a group...'
-                    onChange={(e) => setGroupSearch(e.target.value)}
-                    isSearch={true}
-                />
-                <section>
-                    <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Groups</h4>
-                    <div className="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5">
-                        {filteredGroups.map((item) =>
-                            <button
-                                onClick={() => handleSelect({ type: 'groups', item: item })}
-                                key={item.id}
-                                className={`cursor-pointer rounded-lg border text-xs font-medium px-2 py-1.5 transition-all
+                {!hideGroupFilter &&
+                    <>
+                        <Input
+                            name='group'
+                            placeholder='Find a group...'
+                            onChange={(e) => setGroupSearch(e.target.value)}
+                            isSearch={true}
+                        />
+                        <section>
+                            <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Groups</h4>
+                            <div className="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5">
+                                {filteredGroups?.map((item) =>
+                                    <button
+                                        onClick={() => handleSelect({ type: 'groups', item: item })}
+                                        key={item.id}
+                                        className={`cursor-pointer rounded-lg border text-xs font-medium px-2 py-1.5 transition-all
                     ${selectedGroups?.some(g => g.id === item.id)
-                                        ? 'border-purple-500 bg-purple-500 text-white'
-                                        : 'border-white/10 bg-black/20 text-gray-400 hover:border-white/20'
-                                    }`}
-                            >
-                                {item.name}
-                            </button>
-                        )}
-                    </div>
-                </section>
+                                                ? 'border-purple-500 bg-purple-500 text-white'
+                                                : 'border-white/10 bg-black/20 text-gray-400 hover:border-white/20'
+                                            }`}
+                                    >
+                                        {item.name}
+                                    </button>
+                                )}
+                            </div>
+                        </section>
+                    </>
+                }
+
 
 
                 {/* 4. RARITY SECTION (Using Pills style for compactness) */}

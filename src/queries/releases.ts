@@ -4,7 +4,6 @@ import { paginatedQuery } from "./paginatedQuery";
 import { TABLES } from "@/constants";
 import { createClient } from "@/utils/supabase/server";
 import { handleQueryError } from "@/helper/errorHandling";
-import { FetchFilterProps, FilterProps } from "@/components/UI/filter";
 import { applyGenericFilters, FilterRule, SortRule } from "./appylyFilters";
 
 export async function getReleasesByGroup(groupID: string, search?: string) {
